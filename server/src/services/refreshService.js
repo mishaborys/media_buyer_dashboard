@@ -1,5 +1,4 @@
 const { fetchAllNews } = require('./newsAggregator');
-const { enrichNewsItems } = require('./claudeService');
 const db = require('./database');
 
 let isRefreshing = false;
@@ -15,15 +14,15 @@ async function runRefresh() {
   console.log(`[Refresh] Starting refresh cycle (log id: ${logId})`);
 
   try {
-    const rawItems = await fetchAllNews();
-    const enrichedItems = await enrichNewsItems(rawItems);
+    // Fetch only Google News RSS (parallel), no Claude enrichment for now
+    const items = await fetchAllNews();
 
-    await db.saveNewsItems(enrichedItems);
+    await db.saveNewsItems(items);
     await db.cleanOldNews();
-    await db.logRefreshComplete(logId, enrichedItems.length);
+    await db.logRefreshComplete(logId, items.length);
 
-    console.log(`[Refresh] Completed. Saved ${enrichedItems.length} items.`);
-    return { success: true, itemsCount: enrichedItems.length };
+    console.log(`[Refresh] Completed. Saved ${items.length} raw items.`);
+    return { success: true, itemsCount: items.length };
   } catch (err) {
     console.error('[Refresh] Error:', err);
     await db.logRefreshComplete(logId, 0, err.message);

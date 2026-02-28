@@ -69,39 +69,42 @@ function detectCategory(text) {
   return 'Tech'; // default
 }
 
+async function fetchOneFeed(market, feed, now) {
+  try {
+    const parsed = await parser.parseURL(feed.url);
+    return (parsed.items || []).slice(0, 5).map((item) => ({
+      id: generateId(item.link || '', item.title || ''),
+      headline: item.title || 'No headline',
+      url: item.link || '',
+      source: item.creator || parsed.title || 'Google News',
+      source_type: 'google_news',
+      market,
+      category: feed.category,
+      summary: null,
+      campaign_angle: null,
+      published_at: item.pubDate ? new Date(item.pubDate).toISOString() : now,
+      fetched_at: now,
+      raw_content: item.contentSnippet || item.content || '',
+    }));
+  } catch (err) {
+    console.error(`[GoogleNews] Failed: ${feed.url} — ${err.message}`);
+    return [];
+  }
+}
+
 async function fetchGoogleNewsRSS() {
-  const items = [];
   const now = new Date().toISOString();
 
-  for (const [market, feeds] of Object.entries(GOOGLE_NEWS_FEEDS)) {
-    for (const feed of feeds) {
-      try {
-        const parsed = await parser.parseURL(feed.url);
-        const feedItems = (parsed.items || []).slice(0, 5); // top 5 per feed
+  // Flatten all feeds with market info, fetch all 20 in parallel
+  const allFeeds = Object.entries(GOOGLE_NEWS_FEEDS).flatMap(([market, feeds]) =>
+    feeds.map((feed) => ({ market, feed }))
+  );
 
-        for (const item of feedItems) {
-          items.push({
-            id: generateId(item.link || '', item.title || ''),
-            headline: item.title || 'No headline',
-            url: item.link || '',
-            source: item.creator || parsed.title || 'Google News',
-            source_type: 'google_news',
-            market,
-            category: feed.category,
-            summary: null,
-            campaign_angle: null,
-            published_at: item.pubDate ? new Date(item.pubDate).toISOString() : now,
-            fetched_at: now,
-            raw_content: item.contentSnippet || item.content || '',
-          });
-        }
-      } catch (err) {
-        console.error(`[GoogleNews] Failed to fetch ${feed.url}:`, err.message);
-      }
-    }
-  }
+  const results = await Promise.allSettled(
+    allFeeds.map(({ market, feed }) => fetchOneFeed(market, feed, now))
+  );
 
-  return items;
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
 async function fetchRedditPosts() {
@@ -227,21 +230,10 @@ function deduplicateItems(items) {
 }
 
 async function fetchAllNews() {
-  console.log('[NewsAggregator] Starting news fetch...');
-
-  const [googleItems, redditItems] = await Promise.allSettled([
-    fetchGoogleNewsRSS(),
-    fetchRedditPosts(),
-  ]);
-
-  const allItems = [
-    ...(googleItems.status === 'fulfilled' ? googleItems.value : []),
-    ...(redditItems.status === 'fulfilled' ? redditItems.value : []),
-  ];
-
-  const deduplicated = deduplicateItems(allItems);
+  console.log('[NewsAggregator] Starting news fetch (Google News RSS only)...');
+  const items = await fetchGoogleNewsRSS();
+  const deduplicated = deduplicateItems(items);
   console.log(`[NewsAggregator] Fetched ${deduplicated.length} unique items`);
-
   return deduplicated;
 }
 
