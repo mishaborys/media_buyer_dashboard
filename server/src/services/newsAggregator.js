@@ -230,9 +230,18 @@ function deduplicateItems(items) {
 }
 
 async function fetchAllNews() {
-  console.log('[NewsAggregator] Starting news fetch (Google News RSS only)...');
-  const items = await fetchGoogleNewsRSS();
-  const deduplicated = deduplicateItems(items);
+  console.log('[NewsAggregator] Starting news fetch (Google News RSS + Reddit)...');
+  const [rssItems, redditItems] = await Promise.allSettled([
+    fetchGoogleNewsRSS(),
+    fetchRedditPosts(),
+  ]);
+
+  const allItems = [
+    ...(rssItems.status === 'fulfilled' ? rssItems.value : []),
+    ...(redditItems.status === 'fulfilled' ? redditItems.value : []),
+  ];
+
+  const deduplicated = deduplicateItems(allItems);
   console.log(`[NewsAggregator] Fetched ${deduplicated.length} unique items`);
   return deduplicated;
 }

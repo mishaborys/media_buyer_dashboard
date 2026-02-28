@@ -51,10 +51,15 @@ export default function Header({ bookmarkCount, onSavedClick, lastRefresh, onRef
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        height: 'auto',
+        lineHeight: 'normal',
+        minHeight: 64,
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
-      <div className="dashboard-header">
+      <div className="dashboard-header" style={{ flex: 1, paddingTop: 12, paddingBottom: 12 }}>
         <div className="header-logo">
           <ThunderboltOutlined style={{ color: '#fff', fontSize: 24 }} />
           <div>

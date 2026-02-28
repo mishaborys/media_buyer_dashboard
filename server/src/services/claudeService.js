@@ -25,8 +25,8 @@ async function generateSummaryAndAngle(item) {
     return {
       summary: item.raw_content
         ? item.raw_content.substring(0, 200) + '...'
-        : 'News summary not available.',
-      campaign_angle: `Angle: Create a Facebook ad targeting users interested in ${item.category} topics in the ${item.market} market.`,
+        : 'Резюме недоступне.',
+      campaign_angle: `Кут: Створіть Facebook-рекламу для користувачів, зацікавлених у темі ${item.category} на ринку ${item.market}.`,
     };
   }
 
@@ -34,20 +34,20 @@ async function generateSummaryAndAngle(item) {
     const anthropic = getClient();
 
     const categoryCtx = CATEGORY_CONTEXT[item.category] || item.category;
-    const prompt = `You are a media buyer assistant helping create Facebook ad campaigns.
+    const prompt = `Ти асистент медіабаєра, який допомагає створювати рекламні кампанії у Facebook.
 
-Analyze this news item:
-Title: ${item.headline}
-Source: ${item.source}
-Market: ${item.market}
-Category: ${item.category} (${categoryCtx})
-Content: ${item.raw_content || 'No additional content'}
+Проаналізуй цю новину:
+Заголовок: ${item.headline}
+Джерело: ${item.source}
+Ринок: ${item.market}
+Категорія: ${item.category} (${categoryCtx})
+Зміст: ${item.raw_content || 'Без додаткового змісту'}
 
-Provide a JSON response with exactly these two fields:
-1. "summary": A 2-3 sentence summary of the news item in plain English, suitable for a media buyer to quickly understand its significance.
-2. "campaign_angle": A single sentence campaign angle starting with "Angle:" that suggests how to use this topic for a Facebook ad campaign targeting ${item.market} audiences. Be specific and actionable.
+Надай відповідь у JSON з двома полями:
+1. "summary": Резюме новини у 2-3 реченнях УКРАЇНСЬКОЮ МОВОЮ — коротко і зрозуміло для медіабаєра.
+2. "campaign_angle": Одне речення УКРАЇНСЬКОЮ МОВОЮ — конкретна ідея Facebook-кампанії для аудиторії ${item.market}, починається з "Кут:".
 
-Respond ONLY with valid JSON, no other text.`;
+Відповідай ТІЛЬКИ валідним JSON, без жодного іншого тексту.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -59,16 +59,16 @@ Respond ONLY with valid JSON, no other text.`;
     const parsed = JSON.parse(text);
 
     return {
-      summary: parsed.summary || 'Summary not available.',
-      campaign_angle: parsed.campaign_angle || `Angle: Leverage this ${item.category} trend for Facebook campaigns in ${item.market}.`,
+      summary: parsed.summary || 'Резюме недоступне.',
+      campaign_angle: parsed.campaign_angle || `Кут: Використайте цей тренд у категорії ${item.category} для Facebook-кампаній на ринку ${item.market}.`,
     };
   } catch (err) {
     console.error(`[Claude] Failed to process item "${item.headline}":`, err.message);
     return {
       summary: item.raw_content
         ? item.raw_content.substring(0, 250) + '...'
-        : 'Summary not available.',
-      campaign_angle: `Angle: Use this trending ${item.category} topic to create targeted Facebook ads for the ${item.market} market.`,
+        : 'Резюме недоступне.',
+      campaign_angle: `Кут: Використайте цю тему категорії ${item.category} для таргетованої Facebook-реклами на ринку ${item.market}.`,
     };
   }
 }
@@ -100,8 +100,8 @@ async function enrichNewsItems(items) {
       } else {
         enriched.push({
           ...item,
-          summary: 'Summary not available.',
-          campaign_angle: `Angle: Leverage this ${item.category} trend for Facebook campaigns in ${item.market}.`,
+          summary: 'Резюме недоступне.',
+          campaign_angle: `Кут: Використайте цей тренд у категорії ${item.category} для Facebook-кампаній на ринку ${item.market}.`,
         });
       }
     }
