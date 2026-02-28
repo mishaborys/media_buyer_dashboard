@@ -20,7 +20,9 @@ let SQL = null;
 async function getDb() {
   if (db) return db;
 
-  SQL = await initSqlJs();
+  // Explicitly provide WASM path so sql.js finds it in any environment (Vercel, local)
+  const wasmPath = require.resolve('sql.js/dist/sql-wasm.wasm');
+  SQL = await initSqlJs({ locateFile: () => wasmPath });
 
   if (fs.existsSync(DB_PATH)) {
     const fileBuffer = fs.readFileSync(DB_PATH);

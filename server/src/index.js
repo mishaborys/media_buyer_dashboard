@@ -19,7 +19,7 @@ console.log(`[Cron] Scheduled daily refresh at: ${cronSchedule} UTC`);
 
 async function startupRefresh() {
   const db = require('./services/database');
-  const lastRefresh = db.getLastRefresh();
+  const lastRefresh = await db.getLastRefresh();
   if (!lastRefresh) {
     console.log('[Startup] No data found, running initial refresh...');
     runRefresh().catch((err) => console.error('[Startup] Initial refresh failed:', err.message));
