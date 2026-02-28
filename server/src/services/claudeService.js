@@ -51,11 +51,13 @@ async function generateSummaryAndAngle(item) {
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
+      max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const text = message.content[0].text.trim();
+    // Strip markdown code fences if Claude wraps the JSON
+    const raw = message.content[0].text.trim();
+    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
     const parsed = JSON.parse(text);
 
     return {
