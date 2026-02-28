@@ -1,5 +1,5 @@
 import { Collapse, Tag, Skeleton, Empty, Typography, Space } from 'antd'
-import { TikTokOutlined } from '@ant-design/icons'
+import { RiseOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
@@ -10,44 +10,10 @@ const MARKET_LABELS = {
   Canada: '🇨🇦 Canada',
 }
 
-const PLATFORM_CONFIG = {
-  TikTok: { color: '#010101', bg: '#fe2c55', label: 'TikTok' },
-  Threads: { color: '#fff', bg: '#000', label: 'Threads' },
-}
-
-function TrendTagCloud({ topics, platform }) {
-  const config = PLATFORM_CONFIG[platform] || { color: '#fff', bg: '#666', label: platform }
-  return (
-    <div className="trend-tags">
-      {topics.map((t, i) => (
-        <Tag
-          key={i}
-          color={config.bg}
-          style={{
-            color: config.color,
-            cursor: 'pointer',
-            fontSize: 12,
-            borderRadius: 12,
-            padding: '2px 10px',
-          }}
-          onClick={() => t.url && window.open(t.url, '_blank', 'noopener,noreferrer')}
-        >
-          {t.topic}
-        </Tag>
-      ))}
-    </div>
-  )
-}
-
-function groupTrendsByMarket(trends) {
-  const groups = {}
-  for (const t of trends) {
-    if (!groups[t.market]) groups[t.market] = {}
-    if (!groups[t.market][t.platform]) groups[t.market][t.platform] = []
-    groups[t.market][t.platform].push(...t.topics)
-  }
-  return groups
-}
+const TAG_COLORS = [
+  'blue', 'purple', 'cyan', 'green', 'magenta',
+  'orange', 'gold', 'lime', 'geekblue', 'volcano',
+]
 
 export default function SocialTrends({ trends, loading, market }) {
   if (loading) {
@@ -61,50 +27,51 @@ export default function SocialTrends({ trends, loading, market }) {
   if (!trends || trends.length === 0) {
     return (
       <div style={{ padding: '16px' }}>
-        <Empty description="No social trends available" />
+        <Empty description="No trending topics yet — refresh news data first" />
       </div>
     )
   }
 
-  const grouped = groupTrendsByMarket(trends)
   const marketOrder = market && market !== 'ALL'
     ? [market]
     : ['USA', 'EU', 'LATAM', 'Canada']
 
+  const byMarket = Object.fromEntries(trends.map((t) => [t.market, t]))
+
   const collapseItems = marketOrder
-    .filter((mkt) => grouped[mkt])
-    .map((mkt) => ({
-      key: mkt,
-      label: (
-        <Space>
-          <Text strong>{MARKET_LABELS[mkt] || mkt}</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>Trending Now</Text>
-        </Space>
-      ),
-      children: (
-        <div>
-          {Object.entries(grouped[mkt] || {}).map(([platform, topics]) => (
-            <div key={platform} style={{ marginBottom: 12 }}>
-              <Text
-                strong
-                style={{
-                  fontSize: 12,
-                  display: 'block',
-                  marginBottom: 6,
-                  color: PLATFORM_CONFIG[platform]?.bg || '#666',
-                }}
+    .filter((mkt) => byMarket[mkt])
+    .map((mkt) => {
+      const { topics } = byMarket[mkt]
+      return {
+        key: mkt,
+        label: (
+          <Space>
+            <RiseOutlined />
+            <Text strong>{MARKET_LABELS[mkt] || mkt}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Trending keywords from today's news
+            </Text>
+          </Space>
+        ),
+        children: (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '4px 0' }}>
+            {topics.map((t, i) => (
+              <Tag
+                key={i}
+                color={TAG_COLORS[i % TAG_COLORS.length]}
+                style={{ cursor: 'pointer', fontSize: 13, padding: '3px 10px', borderRadius: 12 }}
+                onClick={() => window.open(t.url, '_blank', 'noopener,noreferrer')}
               >
-                {PLATFORM_CONFIG[platform]?.label || platform}
-              </Text>
-              <TrendTagCloud topics={topics} platform={platform} />
-            </div>
-          ))}
-        </div>
-      ),
-    }))
+                {t.topic}
+              </Tag>
+            ))}
+          </div>
+        ),
+      }
+    })
 
   return (
-    <div className="social-trends-section">
+    <div style={{ padding: '0 16px 16px' }}>
       <Collapse
         items={collapseItems}
         defaultActiveKey={['USA']}

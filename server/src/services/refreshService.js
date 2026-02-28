@@ -1,5 +1,4 @@
 const { fetchAllNews } = require('./newsAggregator');
-const { fetchAllSocialTrends } = require('./socialScraper');
 const { enrichNewsItems } = require('./claudeService');
 const db = require('./database');
 
@@ -20,15 +19,11 @@ async function runRefresh() {
     const enrichedItems = await enrichNewsItems(rawItems);
 
     await db.saveNewsItems(enrichedItems);
-
-    const socialTrends = await fetchAllSocialTrends();
-    await db.saveSocialTrends(socialTrends);
-
     await db.cleanOldNews();
     await db.logRefreshComplete(logId, enrichedItems.length);
 
-    console.log(`[Refresh] Completed. Saved ${enrichedItems.length} items, ${socialTrends.length} social trends`);
-    return { success: true, itemsCount: enrichedItems.length, trendsCount: socialTrends.length };
+    console.log(`[Refresh] Completed. Saved ${enrichedItems.length} items.`);
+    return { success: true, itemsCount: enrichedItems.length };
   } catch (err) {
     console.error('[Refresh] Error:', err);
     await db.logRefreshComplete(logId, 0, err.message);

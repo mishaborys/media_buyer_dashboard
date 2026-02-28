@@ -229,16 +229,14 @@ function deduplicateItems(items) {
 async function fetchAllNews() {
   console.log('[NewsAggregator] Starting news fetch...');
 
-  const [googleItems, redditItems, twitterItems] = await Promise.allSettled([
+  const [googleItems, redditItems] = await Promise.allSettled([
     fetchGoogleNewsRSS(),
     fetchRedditPosts(),
-    fetchTwitterTrends(),
   ]);
 
   const allItems = [
     ...(googleItems.status === 'fulfilled' ? googleItems.value : []),
     ...(redditItems.status === 'fulfilled' ? redditItems.value : []),
-    ...(twitterItems.status === 'fulfilled' ? twitterItems.value : []),
   ];
 
   const deduplicated = deduplicateItems(allItems);
