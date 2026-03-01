@@ -1,7 +1,5 @@
-import { Card, Tag, Typography, Button, Alert, Tooltip, Space } from 'antd'
+import { Card, Tag, Typography, Button, Alert, Space } from 'antd'
 import {
-  StarOutlined,
-  StarFilled,
   LikeOutlined,
   LikeFilled,
   DislikeOutlined,
@@ -37,7 +35,7 @@ const CATEGORY_CONFIG = {
 const SOURCE_TYPE_LABELS = {
   google_news: 'Google News',
   reddit: 'Reddit',
-  twitter: 'Twitter/X',
+  google_trends: 'Google Trends',
 }
 
 function formatRelativeTime(dateStr) {
@@ -50,16 +48,7 @@ function formatRelativeTime(dateStr) {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-export default function NewsCard({
-  item,
-  isBookmarked,
-  onToggleBookmark,
-  isLiked,
-  onLike,
-  onDislike,
-  onEnrich,
-  enriching,
-}) {
+export default function NewsCard({ item, isLiked, onLike, onDislike, onEnrich, enriching }) {
   const market = MARKET_CONFIG[item.market] || { color: 'default', flag: '' }
   const category = CATEGORY_CONFIG[item.category] || { color: 'default', icon: null }
 
@@ -160,43 +149,32 @@ export default function NewsCard({
         >
           Read more →
         </Link>
-        <Space size={0}>
-          <Tooltip title={isLiked ? 'Unlike' : 'Like'}>
-            <Button
-              type="text"
-              size="small"
-              icon={
-                isLiked ? (
-                  <LikeFilled style={{ color: '#1677ff' }} />
-                ) : (
-                  <LikeOutlined style={{ color: '#bfbfbf' }} />
-                )
-              }
-              onClick={() => onLike?.(item)}
-            />
-          </Tooltip>
-          <Tooltip title="Not interested">
-            <Button
-              type="text"
-              size="small"
-              icon={<DislikeOutlined style={{ color: '#bfbfbf' }} />}
-              onClick={() => onDislike?.(item.id)}
-            />
-          </Tooltip>
-          <Tooltip title={isBookmarked ? 'Remove bookmark' : 'Save for later'}>
-            <Button
-              type="text"
-              size="small"
-              icon={
-                isBookmarked ? (
-                  <StarFilled style={{ color: '#faad14' }} />
-                ) : (
-                  <StarOutlined style={{ color: '#bfbfbf' }} />
-                )
-              }
-              onClick={() => onToggleBookmark(item)}
-            />
-          </Tooltip>
+        <Space size={8}>
+          <Button
+            size="middle"
+            icon={isLiked ? <LikeFilled /> : <LikeOutlined />}
+            onClick={() => onLike?.(item)}
+            style={{
+              background: isLiked ? '#52c41a' : 'transparent',
+              borderColor: '#52c41a',
+              color: isLiked ? '#fff' : '#52c41a',
+              fontWeight: 600,
+            }}
+          >
+            {isLiked ? 'Liked' : 'Like'}
+          </Button>
+          <Button
+            size="middle"
+            icon={<DislikeOutlined />}
+            onClick={() => onDislike?.(item.id)}
+            style={{
+              borderColor: '#ff4d4f',
+              color: '#ff4d4f',
+              fontWeight: 600,
+            }}
+          >
+            Skip
+          </Button>
         </Space>
       </div>
     </Card>

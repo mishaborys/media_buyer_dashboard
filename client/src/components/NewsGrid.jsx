@@ -38,8 +38,6 @@ export default function NewsGrid({
   news,
   loading,
   market,
-  isBookmarked,
-  onToggleBookmark,
   isLiked,
   isDisliked,
   onLike,
@@ -70,8 +68,6 @@ export default function NewsGrid({
 
   const cardProps = (item) => ({
     item,
-    isBookmarked: isBookmarked(item.id),
-    onToggleBookmark,
     isLiked: isLiked(item.id),
     onLike,
     onDislike,

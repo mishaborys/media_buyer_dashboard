@@ -140,18 +140,18 @@ async function fetchGoogleNewsRSS() {
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
-// Reddit via public RSS — no OAuth needed, fully parallel
+// Reddit via public RSS — top posts of the day only (high engagement)
 async function fetchRedditRSS() {
   const now = new Date().toISOString();
   const allSubs = Object.entries(REDDIT_SUBREDDITS).flatMap(([market, subs]) =>
-    subs.slice(0, 3).map((sub) => ({ market, sub }))
+    subs.slice(0, 2).map((sub) => ({ market, sub }))
   );
 
   const results = await Promise.allSettled(
     allSubs.map(async ({ market, sub }) => {
       try {
-        const feed = await parser.parseURL(`https://www.reddit.com/r/${sub}/hot.rss?limit=5`);
-        return (feed.items || []).slice(0, 5).map((item) => ({
+        const feed = await parser.parseURL(`https://www.reddit.com/r/${sub}/top.rss?t=day&limit=5`);
+        return (feed.items || []).slice(0, 3).map((item) => ({
           id: generateId(`reddit-${sub}-${item.link || ''}`, item.title || ''),
           headline: item.title || 'No headline',
           url: item.link || '',

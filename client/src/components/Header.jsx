@@ -1,6 +1,5 @@
 import { Layout, Badge, Button, Tooltip, Space, message } from 'antd'
 import {
-  BookOutlined,
   ReloadOutlined,
   ThunderboltOutlined,
   HeartOutlined,
@@ -17,7 +16,7 @@ const MARKET_FLAGS = {
   Canada: '🇨🇦',
 }
 
-export default function Header({ bookmarkCount, onSavedClick, likedCount, onLikedClick, lastRefresh, onRefreshComplete }) {
+export default function Header({ likedCount, onLikedClick, lastRefresh, onRefreshComplete }) {
   const [refreshing, setRefreshing] = useState(false)
 
   const handleRefresh = async () => {
@@ -25,7 +24,6 @@ export default function Header({ bookmarkCount, onSavedClick, likedCount, onLike
     try {
       await triggerRefresh()
       message.success('Refresh started! New data will appear shortly.')
-      // Poll for completion
       setTimeout(() => {
         onRefreshComplete?.()
         setRefreshing(false)
@@ -92,15 +90,6 @@ export default function Header({ bookmarkCount, onSavedClick, likedCount, onLike
               style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}
             >
               Liked
-            </Button>
-          </Badge>
-          <Badge count={bookmarkCount} overflowCount={99}>
-            <Button
-              icon={<BookOutlined />}
-              onClick={onSavedClick}
-              style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}
-            >
-              Saved
             </Button>
           </Badge>
         </Space>

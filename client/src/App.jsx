@@ -4,10 +4,8 @@ import Header from './components/Header'
 import FilterBar from './components/FilterBar'
 import NewsGrid from './components/NewsGrid'
 import SocialTrends from './components/SocialTrends'
-import SavedDrawer from './components/SavedDrawer'
 import LikedDrawer from './components/LikedDrawer'
 import { useNews, useSocialTrends } from './hooks/useNews'
-import { useBookmarks } from './hooks/useBookmarks'
 import { useReactions } from './hooks/useReactions'
 
 const { Content } = Layout
@@ -19,14 +17,12 @@ export default function App() {
   const [market, setMarket] = useState('ALL')
   const [category, setCategory] = useState('ALL')
   const [source, setSource] = useState('ALL')
-  const [savedDrawerOpen, setSavedDrawerOpen] = useState(false)
   const [likedDrawerOpen, setLikedDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('news')
   const [enrichingId, setEnrichingId] = useState(null)
 
   const { news, loading: newsLoading, error: newsError, lastRefresh, refetch, updateItem } = useNews(market, category, source)
   const { trends, loading: trendsLoading } = useSocialTrends(market)
-  const { bookmarks, isBookmarked, toggleBookmark, removeBookmark } = useBookmarks()
   const { likedItems, like, dislike, removeLike, isLiked, isDisliked } = useReactions()
 
   const handleRefreshComplete = useCallback(() => {
@@ -69,8 +65,6 @@ export default function App() {
             news={news}
             loading={newsLoading}
             market={market}
-            isBookmarked={isBookmarked}
-            onToggleBookmark={toggleBookmark}
             isLiked={isLiked}
             isDisliked={isDisliked}
             onLike={like}
@@ -97,8 +91,6 @@ export default function App() {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header
-        bookmarkCount={bookmarks.length}
-        onSavedClick={() => setSavedDrawerOpen(true)}
         likedCount={likedItems.length}
         onLikedClick={() => setLikedDrawerOpen(true)}
         lastRefresh={lastRefresh}
@@ -132,13 +124,6 @@ export default function App() {
           }
         />
       </Content>
-
-      <SavedDrawer
-        open={savedDrawerOpen}
-        onClose={() => setSavedDrawerOpen(false)}
-        bookmarks={bookmarks}
-        onRemove={removeBookmark}
-      />
 
       <LikedDrawer
         open={likedDrawerOpen}
