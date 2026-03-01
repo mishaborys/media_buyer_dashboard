@@ -59,10 +59,21 @@ const REDDIT_SUBREDDITS = {
 
 // Google Trends countries mapped to markets
 const GOOGLE_TRENDS_GEOS = [
+  // USA
   { geo: 'US', market: 'USA' },
+  // EU — 5 major countries
   { geo: 'GB', market: 'EU' },
+  { geo: 'DE', market: 'EU' },
+  { geo: 'FR', market: 'EU' },
+  { geo: 'ES', market: 'EU' },
+  { geo: 'IT', market: 'EU' },
+  // Canada
   { geo: 'CA', market: 'Canada' },
+  // LATAM — 4 countries
   { geo: 'MX', market: 'LATAM' },
+  { geo: 'BR', market: 'LATAM' },
+  { geo: 'AR', market: 'LATAM' },
+  { geo: 'CO', market: 'LATAM' },
 ];
 
 const CATEGORY_KEYWORDS = {

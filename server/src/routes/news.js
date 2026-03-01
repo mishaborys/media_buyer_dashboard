@@ -43,17 +43,25 @@ router.get('/social', async (req, res) => {
       limit: 100,
     });
 
-    // Group by market → [{platform, market, topics:[{topic, url, traffic}]}]
+    // Group by market, then by country within market
+    // byMarket: { USA: { market, countries: { US: [{topic,url,traffic}] } } }
     const byMarket = {};
     for (const item of items) {
       if (!byMarket[item.market]) {
-        byMarket[item.market] = { platform: 'Google Trends', market: item.market, topics: [] };
+        byMarket[item.market] = { market: item.market, countries: {} };
       }
-      // raw_content: "Trending in US: ~500K+ searches"
+      // source field: "Google Trends (DE)" → extract geo code
+      const geoMatch = item.source?.match(/\((\w+)\)$/);
+      const geo = geoMatch?.[1] || 'XX';
+
+      if (!byMarket[item.market].countries[geo]) {
+        byMarket[item.market].countries[geo] = [];
+      }
+
       const trafficMatch = item.raw_content?.match(/~([^s]+searches?)/i);
       const traffic = trafficMatch ? trafficMatch[1].trim() : null;
 
-      byMarket[item.market].topics.push({
+      byMarket[item.market].countries[geo].push({
         topic: item.headline.replace(/^🔥\s*/, ''),
         url: item.url,
         traffic,
