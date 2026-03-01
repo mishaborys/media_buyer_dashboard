@@ -24,7 +24,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('news')
   const [enrichingId, setEnrichingId] = useState(null)
 
-  const { news, loading: newsLoading, error: newsError, lastRefresh, refetch } = useNews(market, category, source)
+  const { news, loading: newsLoading, error: newsError, lastRefresh, refetch, updateItem } = useNews(market, category, source)
   const { trends, loading: trendsLoading } = useSocialTrends(market)
   const { bookmarks, isBookmarked, toggleBookmark, removeBookmark } = useBookmarks()
   const { likedItems, like, dislike, removeLike, isLiked, isDisliked } = useReactions()
@@ -40,14 +40,14 @@ export default function App() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (data.success && data.data) {
-        refetch()
+        updateItem(data.data)
       }
     } catch (err) {
       message.error('Failed to get Claude summary: ' + err.message)
     } finally {
       setEnrichingId(null)
     }
-  }, [refetch])
+  }, [updateItem])
 
   const tabItems = [
     {

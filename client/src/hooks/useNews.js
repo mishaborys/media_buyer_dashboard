@@ -35,7 +35,11 @@ export function useNews(market, category, sourceType) {
     fetchNews()
   }, [fetchNews])
 
-  return { news, loading, error, lastRefresh, refetch: fetchNews }
+  const updateItem = useCallback((updatedItem) => {
+    setNews((prev) => prev.map((item) => item.id === updatedItem.id ? { ...item, ...updatedItem } : item))
+  }, [])
+
+  return { news, loading, error, lastRefresh, refetch: fetchNews, updateItem }
 }
 
 export function useSocialTrends(market) {
