@@ -33,13 +33,34 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/news/social
+// GET /api/news/social — returns Google Trends search queries grouped by market
 router.get('/social', async (req, res) => {
   try {
     const { market } = req.query;
-    // getSocialTrends already returns grouped [{platform, market, topics:[]}]
-    const trends = await db.getSocialTrends({ market: market || 'ALL' });
-    res.json({ success: true, data: trends });
+    const items = await db.getNewsItems({
+      market: market || 'ALL',
+      source_type: 'google_trends',
+      limit: 100,
+    });
+
+    // Group by market → [{platform, market, topics:[{topic, url, traffic}]}]
+    const byMarket = {};
+    for (const item of items) {
+      if (!byMarket[item.market]) {
+        byMarket[item.market] = { platform: 'Google Trends', market: item.market, topics: [] };
+      }
+      // raw_content: "Trending in US: ~500K+ searches"
+      const trafficMatch = item.raw_content?.match(/~([^s]+searches?)/i);
+      const traffic = trafficMatch ? trafficMatch[1].trim() : null;
+
+      byMarket[item.market].topics.push({
+        topic: item.headline.replace(/^🔥\s*/, ''),
+        url: item.url,
+        traffic,
+      });
+    }
+
+    res.json({ success: true, data: Object.values(byMarket) });
   } catch (err) {
     console.error('[GET /api/news/social] Error:', err);
     res.status(500).json({ success: false, error: 'Failed to fetch social trends' });

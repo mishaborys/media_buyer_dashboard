@@ -1,5 +1,5 @@
-import { Collapse, Tag, Skeleton, Empty, Typography, Space } from 'antd'
-import { RiseOutlined } from '@ant-design/icons'
+import { Collapse, Tag, Skeleton, Empty, Typography, Space, Badge } from 'antd'
+import { FireOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
@@ -11,8 +11,8 @@ const MARKET_LABELS = {
 }
 
 const TAG_COLORS = [
-  'blue', 'purple', 'cyan', 'green', 'magenta',
-  'orange', 'gold', 'lime', 'geekblue', 'volcano',
+  'red', 'volcano', 'orange', 'gold', 'cyan',
+  'blue', 'purple', 'magenta', 'geekblue', 'green',
 ]
 
 export default function SocialTrends({ trends, loading, market }) {
@@ -27,7 +27,7 @@ export default function SocialTrends({ trends, loading, market }) {
   if (!trends || trends.length === 0) {
     return (
       <div style={{ padding: '16px' }}>
-        <Empty description="No trending topics yet — refresh news data first" />
+        <Empty description="No Google Trends data yet — click Refresh to fetch today's trending searches" />
       </div>
     )
   }
@@ -46,24 +46,33 @@ export default function SocialTrends({ trends, loading, market }) {
         key: mkt,
         label: (
           <Space>
-            <RiseOutlined />
+            <FireOutlined style={{ color: '#f5222d' }} />
             <Text strong>{MARKET_LABELS[mkt] || mkt}</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Trending keywords from today's news
+              Top Google searches today
             </Text>
           </Space>
         ),
         children: (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '4px 0' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '4px 0' }}>
             {topics.map((t, i) => (
-              <Tag
+              <div
                 key={i}
-                color={TAG_COLORS[i % TAG_COLORS.length]}
-                style={{ cursor: 'pointer', fontSize: 13, padding: '3px 10px', borderRadius: 12 }}
                 onClick={() => window.open(t.url, '_blank', 'noopener,noreferrer')}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
               >
-                {t.topic}
-              </Tag>
+                <Tag
+                  color={TAG_COLORS[i % TAG_COLORS.length]}
+                  style={{ fontSize: 13, padding: '3px 10px', borderRadius: 12, margin: 0 }}
+                >
+                  {t.topic}
+                </Tag>
+                {t.traffic && (
+                  <Text type="secondary" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+                    ~{t.traffic}
+                  </Text>
+                )}
+              </div>
             ))}
           </div>
         ),
@@ -74,7 +83,7 @@ export default function SocialTrends({ trends, loading, market }) {
     <div style={{ padding: '0 16px 16px' }}>
       <Collapse
         items={collapseItems}
-        defaultActiveKey={['USA']}
+        defaultActiveKey={['USA', 'EU', 'LATAM', 'Canada']}
         bordered={false}
         style={{ background: 'transparent' }}
       />
