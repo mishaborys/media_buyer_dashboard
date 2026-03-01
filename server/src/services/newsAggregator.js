@@ -22,6 +22,8 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=mortgage+rates+finance+credit&hl=en-US&gl=US&ceid=US:en', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=car+auto+deals+EV&hl=en-US&gl=US&ceid=US:en', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=savings+benefits+retirement+deals&hl=en-US&gl=US&ceid=US:en', category: 'Savings & Benefits' },
+    { url: 'https://news.google.com/rss/search?q=video+game+release+2025+xbox+playstation+nintendo+pc&hl=en-US&gl=US&ceid=US:en', category: 'Gaming' },
+    { url: 'https://news.google.com/rss/search?q=new+tv+series+streaming+netflix+hbo+disney+premiere+2025&hl=en-US&gl=US&ceid=US:en', category: 'Entertainment' },
   ],
   EU: [
     { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Tech' },
@@ -30,6 +32,8 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=mortgage+finance+credit+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=car+auto+EV+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=savings+benefits+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Savings & Benefits' },
+    { url: 'https://news.google.com/rss/search?q=video+game+release+xbox+playstation+nintendo+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Gaming' },
+    { url: 'https://news.google.com/rss/search?q=new+tv+series+streaming+netflix+hbo+premiere+uk+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Entertainment' },
   ],
   LATAM: [
     { url: 'https://news.google.com/rss/search?q=tecnologia+gadgets+IA+latinoamerica&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Tech' },
@@ -38,6 +42,8 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=hipoteca+credito+finanzas+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=autos+carros+electrico+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=ahorro+beneficios+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Savings & Benefits' },
+    { url: 'https://news.google.com/rss/search?q=videojuegos+lanzamiento+xbox+playstation+nintendo&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Gaming' },
+    { url: 'https://news.google.com/rss/search?q=nueva+serie+streaming+netflix+estreno+temporada&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Entertainment' },
   ],
   Canada: [
     { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Tech' },
@@ -46,6 +52,8 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=mortgage+rates+finance+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=car+auto+deals+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=savings+benefits+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Savings & Benefits' },
+    { url: 'https://news.google.com/rss/search?q=video+game+release+xbox+playstation+nintendo+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Gaming' },
+    { url: 'https://news.google.com/rss/search?q=new+tv+series+streaming+netflix+hbo+premiere+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Entertainment' },
   ],
 };
 
@@ -82,6 +90,8 @@ const CATEGORY_KEYWORDS = {
   Finance: ['finance', 'mortgage', 'loan', 'credit', 'bank', 'invest', 'stock', 'rate', 'money'],
   Auto: ['car', 'auto', 'vehicle', 'ev', 'electric', 'truck', 'suv', 'drive'],
   'Savings & Benefits': ['save', 'saving', 'benefit', 'retire', 'coupon', 'cashback', 'frugal', 'budget'],
+  Gaming: ['game', 'gaming', 'xbox', 'playstation', 'nintendo', 'steam', 'esport', 'gamer', 'dlc', 'indie game'],
+  Entertainment: ['series', 'streaming', 'netflix', 'hbo', 'disney', 'movie', 'film', 'premiere', 'season', 'episode', 'trailer'],
 };
 
 function generateId(url, headline) {

@@ -202,9 +202,25 @@ async function cleanOldNews() {
   `;
 }
 
+async function getNewsItemById(id) {
+  await ensureSchema();
+  const result = await sql`SELECT * FROM news_items WHERE id = ${id} LIMIT 1`;
+  return result.rows[0] || null;
+}
+
+async function updateNewsItemEnrichment(id, summary, campaign_angle) {
+  await sql`
+    UPDATE news_items
+    SET summary = ${summary}, campaign_angle = ${campaign_angle}
+    WHERE id = ${id}
+  `;
+}
+
 module.exports = {
   saveNewsItems,
   getNewsItems,
+  getNewsItemById,
+  updateNewsItemEnrichment,
   getUnenrichedItems,
   getSocialTrends,
   getLastRefresh,

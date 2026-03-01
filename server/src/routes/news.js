@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../services/database');
+const { enrichNewsItems } = require('../services/claudeService');
 
 // GET /api/news
 router.get('/', async (req, res) => {
@@ -82,6 +83,23 @@ router.get('/status', async (req, res) => {
     res.json({ success: true, lastRefresh });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Failed to get status' });
+  }
+});
+
+// POST /api/news/:id/enrich — on-demand Claude enrichment for a single item
+router.post('/:id/enrich', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const item = await db.getNewsItemById(id);
+    if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
+
+    const [enriched] = await enrichNewsItems([item]);
+    await db.updateNewsItemEnrichment(id, enriched.summary, enriched.campaign_angle);
+
+    res.json({ success: true, data: { ...item, summary: enriched.summary, campaign_angle: enriched.campaign_angle } });
+  } catch (err) {
+    console.error('[POST /api/news/:id/enrich] Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to enrich item' });
   }
 });
 

@@ -6,6 +6,8 @@ import {
   CarOutlined,
   DollarOutlined,
   AppstoreOutlined,
+  TrophyOutlined,
+  PlayCircleOutlined,
 } from '@ant-design/icons'
 
 const { Text } = Typography
@@ -25,6 +27,8 @@ const CATEGORIES = [
   { label: 'Finance', value: 'Finance', icon: <CreditCardOutlined /> },
   { label: 'Auto', value: 'Auto', icon: <CarOutlined /> },
   { label: 'Savings & Benefits', value: 'Savings & Benefits', icon: <DollarOutlined /> },
+  { label: 'Gaming', value: 'Gaming', icon: <TrophyOutlined /> },
+  { label: 'Entertainment', value: 'Entertainment', icon: <PlayCircleOutlined /> },
 ]
 
 const SOURCES = [

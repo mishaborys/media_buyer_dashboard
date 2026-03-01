@@ -3,6 +3,7 @@ import {
   BookOutlined,
   ReloadOutlined,
   ThunderboltOutlined,
+  HeartOutlined,
 } from '@ant-design/icons'
 import { triggerRefresh } from '../hooks/useNews'
 import { useState } from 'react'
@@ -16,7 +17,7 @@ const MARKET_FLAGS = {
   Canada: '🇨🇦',
 }
 
-export default function Header({ bookmarkCount, onSavedClick, lastRefresh, onRefreshComplete }) {
+export default function Header({ bookmarkCount, onSavedClick, likedCount, onLikedClick, lastRefresh, onRefreshComplete }) {
   const [refreshing, setRefreshing] = useState(false)
 
   const handleRefresh = async () => {
@@ -84,6 +85,15 @@ export default function Header({ bookmarkCount, onSavedClick, lastRefresh, onRef
               Refresh
             </Button>
           </Tooltip>
+          <Badge count={likedCount} overflowCount={99}>
+            <Button
+              icon={<HeartOutlined />}
+              onClick={onLikedClick}
+              style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}
+            >
+              Liked
+            </Button>
+          </Badge>
           <Badge count={bookmarkCount} overflowCount={99}>
             <Button
               icon={<BookOutlined />}

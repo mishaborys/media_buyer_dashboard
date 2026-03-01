@@ -34,10 +34,25 @@ function SkeletonGrid() {
   )
 }
 
-export default function NewsGrid({ news, loading, market, isBookmarked, onToggleBookmark }) {
+export default function NewsGrid({
+  news,
+  loading,
+  market,
+  isBookmarked,
+  onToggleBookmark,
+  isLiked,
+  isDisliked,
+  onLike,
+  onDislike,
+  onEnrich,
+  enrichingId,
+}) {
   if (loading) return <SkeletonGrid />
 
-  if (!news || news.length === 0) {
+  // Filter out liked and disliked items from main feed
+  const visibleNews = news.filter((item) => !isLiked(item.id) && !isDisliked(item.id))
+
+  if (!visibleNews || visibleNews.length === 0) {
     return (
       <div className="empty-state">
         <Empty
@@ -53,18 +68,25 @@ export default function NewsGrid({ news, loading, market, isBookmarked, onToggle
     )
   }
 
+  const cardProps = (item) => ({
+    item,
+    isBookmarked: isBookmarked(item.id),
+    onToggleBookmark,
+    isLiked: isLiked(item.id),
+    onLike,
+    onDislike,
+    onEnrich,
+    enriching: enrichingId === item.id,
+  })
+
   // If a specific market is selected, show flat grid
   if (market && market !== 'ALL') {
     return (
       <div className="news-grid">
         <Row gutter={[16, 16]}>
-          {news.map((item) => (
+          {visibleNews.map((item) => (
             <Col key={item.id} xs={24} sm={12} lg={8}>
-              <NewsCard
-                item={item}
-                isBookmarked={isBookmarked(item.id)}
-                onToggleBookmark={onToggleBookmark}
-              />
+              <NewsCard {...cardProps(item)} />
             </Col>
           ))}
         </Row>
@@ -73,7 +95,7 @@ export default function NewsGrid({ news, loading, market, isBookmarked, onToggle
   }
 
   // Group by market for ALL view
-  const groups = groupByMarket(news)
+  const groups = groupByMarket(visibleNews)
   const marketOrder = ['USA', 'EU', 'LATAM', 'Canada']
 
   return (
@@ -91,11 +113,7 @@ export default function NewsGrid({ news, loading, market, isBookmarked, onToggle
             <Row gutter={[16, 16]}>
               {items.map((item) => (
                 <Col key={item.id} xs={24} sm={12} lg={8}>
-                  <NewsCard
-                    item={item}
-                    isBookmarked={isBookmarked(item.id)}
-                    onToggleBookmark={onToggleBookmark}
-                  />
+                  <NewsCard {...cardProps(item)} />
                 </Col>
               ))}
             </Row>
