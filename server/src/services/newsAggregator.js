@@ -162,7 +162,7 @@ async function fetchGoogleTrends() {
     GOOGLE_TRENDS_GEOS.map(async ({ geo, market }) => {
       try {
         const feed = await trendsParser.parseURL(
-          `https://trends.google.com/trends/trendingsearches/daily/rss?geo=${geo}`
+          `https://trends.google.com/trending/rss?geo=${geo}`
         );
         return (feed.items || []).slice(0, 5).map((item) => ({
           id: generateId(`gtrends-${geo}-${item.title || ''}`, item.title || ''),

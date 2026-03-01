@@ -23,7 +23,7 @@ async function runRefresh() {
     await db.cleanOldNews();
 
     // Enrich items that don't have summaries yet (up to 50 per refresh to stay within timeout)
-    const unenriched = await db.getUnenrichedItems(50);
+    const unenriched = await db.getUnenrichedItems(20);
     if (unenriched.length > 0) {
       console.log(`[Refresh] Enriching ${unenriched.length} items with Claude...`);
       const enriched = await enrichNewsItems(unenriched);
