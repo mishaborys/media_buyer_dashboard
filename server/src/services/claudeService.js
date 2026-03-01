@@ -26,7 +26,7 @@ async function generateSummaryAndAngle(item) {
       summary: item.raw_content
         ? item.raw_content.substring(0, 200) + '...'
         : 'Резюме недоступне.',
-      campaign_angle: `Кут: Створіть Facebook-рекламу для користувачів, зацікавлених у темі ${item.category} на ринку ${item.market}.`,
+      campaign_angle: `Ідея: Створіть Facebook-рекламу для користувачів, зацікавлених у темі ${item.category} на ринку ${item.market}.`,
     };
   }
 
@@ -45,7 +45,7 @@ async function generateSummaryAndAngle(item) {
 
 Надай відповідь у JSON з двома полями:
 1. "summary": Резюме новини у 2-3 реченнях УКРАЇНСЬКОЮ МОВОЮ — коротко і зрозуміло для медіабаєра.
-2. "campaign_angle": Одне речення УКРАЇНСЬКОЮ МОВОЮ — конкретна ідея Facebook-кампанії для аудиторії ${item.market}, починається з "Кут:".
+2. "campaign_angle": Одне речення УКРАЇНСЬКОЮ МОВОЮ — конкретна ідея Facebook-кампанії для аудиторії ${item.market}, починається з "Ідея:".
 
 Відповідай ТІЛЬКИ валідним JSON, без жодного іншого тексту.`;
 
@@ -62,7 +62,7 @@ async function generateSummaryAndAngle(item) {
 
     return {
       summary: parsed.summary || 'Резюме недоступне.',
-      campaign_angle: parsed.campaign_angle || `Кут: Використайте цей тренд у категорії ${item.category} для Facebook-кампаній на ринку ${item.market}.`,
+      campaign_angle: parsed.campaign_angle || `Ідея: Використайте цей тренд у категорії ${item.category} для Facebook-кампаній на ринку ${item.market}.`,
     };
   } catch (err) {
     console.error(`[Claude] Failed to process item "${item.headline}":`, err.message);
@@ -70,7 +70,7 @@ async function generateSummaryAndAngle(item) {
       summary: item.raw_content
         ? item.raw_content.substring(0, 250) + '...'
         : 'Резюме недоступне.',
-      campaign_angle: `Кут: Використайте цю тему категорії ${item.category} для таргетованої Facebook-реклами на ринку ${item.market}.`,
+      campaign_angle: `Ідея: Використайте цю тему категорії ${item.category} для таргетованої Facebook-реклами на ринку ${item.market}.`,
     };
   }
 }
@@ -103,7 +103,7 @@ async function enrichNewsItems(items) {
         enriched.push({
           ...item,
           summary: 'Резюме недоступне.',
-          campaign_angle: `Кут: Використайте цей тренд у категорії ${item.category} для Facebook-кампаній на ринку ${item.market}.`,
+          campaign_angle: `Ідея: Використайте цей тренд у категорії ${item.category} для Facebook-кампаній на ринку ${item.market}.`,
         });
       }
     }

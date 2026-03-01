@@ -15,21 +15,24 @@ async function runRefresh() {
   console.log(`[Refresh] Starting refresh cycle (log id: ${logId})`);
 
   try {
-    // Fetch Google News RSS + Reddit in parallel
+    // Fetch all sources in parallel
     const items = await fetchAllNews();
 
-    // Enrich top 30 new items with Claude (Ukrainian summaries + campaign angles)
-    const toEnrich = items.slice(0, 30);
-    const rest = items.slice(30);
-    const enriched = await enrichNewsItems(toEnrich);
-
-    const allItems = [...enriched, ...rest];
-    await db.saveNewsItems(allItems);
+    // Save all raw items first (COALESCE preserves existing summaries in DB)
+    await db.saveNewsItems(items);
     await db.cleanOldNews();
-    await db.logRefreshComplete(logId, allItems.length);
 
-    console.log(`[Refresh] Completed. Saved ${allItems.length} items (${enriched.length} enriched by Claude).`);
-    return { success: true, itemsCount: allItems.length };
+    // Enrich items that don't have summaries yet (up to 50 per refresh to stay within timeout)
+    const unenriched = await db.getUnenrichedItems(50);
+    if (unenriched.length > 0) {
+      console.log(`[Refresh] Enriching ${unenriched.length} items with Claude...`);
+      const enriched = await enrichNewsItems(unenriched);
+      await db.saveNewsItems(enriched);
+    }
+
+    await db.logRefreshComplete(logId, items.length);
+    console.log(`[Refresh] Completed. ${items.length} items total, ${unenriched.length} enriched by Claude.`);
+    return { success: true, itemsCount: items.length };
   } catch (err) {
     console.error('[Refresh] Error:', err);
     await db.logRefreshComplete(logId, 0, err.message);

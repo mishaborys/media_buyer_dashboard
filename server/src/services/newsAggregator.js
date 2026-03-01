@@ -1,39 +1,47 @@
-const axios = require('axios');
 const RSSParser = require('rss-parser');
 const crypto = require('crypto');
 
 const parser = new RSSParser({
   timeout: 10000,
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (compatible; MediaBuyerBot/1.0)',
-  },
+  headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MediaBuyerBot/1.0)' },
+});
+
+// Separate parser for Google Trends (needs ht: namespace support)
+const trendsParser = new RSSParser({
+  timeout: 10000,
+  headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MediaBuyerBot/1.0)' },
+  customFields: { item: [['ht:approx_traffic', 'approxTraffic']] },
 });
 
 // Market-specific Google News RSS feed configs
 const GOOGLE_NEWS_FEEDS = {
   USA: [
-    { url: 'https://news.google.com/rss/search?q=technology+gadgets&hl=en-US&gl=US&ceid=US:en', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+software&hl=en-US&gl=US&ceid=US:en', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=samsung+galaxy+iphone+pixel+smartphone+launch&hl=en-US&gl=US&ceid=US:en', category: 'Tech' },
     { url: 'https://news.google.com/rss/search?q=ecommerce+online+shopping&hl=en-US&gl=US&ceid=US:en', category: 'eCommerce' },
     { url: 'https://news.google.com/rss/search?q=mortgage+rates+finance+credit&hl=en-US&gl=US&ceid=US:en', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=car+auto+deals+EV&hl=en-US&gl=US&ceid=US:en', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=savings+benefits+retirement+deals&hl=en-US&gl=US&ceid=US:en', category: 'Savings & Benefits' },
   ],
   EU: [
-    { url: 'https://news.google.com/rss/search?q=technology+gadgets+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=samsung+galaxy+iphone+smartphone+launch+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Tech' },
     { url: 'https://news.google.com/rss/search?q=ecommerce+shopping+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'eCommerce' },
     { url: 'https://news.google.com/rss/search?q=mortgage+finance+credit+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=car+auto+EV+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=savings+benefits+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Savings & Benefits' },
   ],
   LATAM: [
-    { url: 'https://news.google.com/rss/search?q=tecnologia+gadgets+latinoamerica&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=tecnologia+gadgets+IA+latinoamerica&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=samsung+galaxy+iphone+smartphone+lanzamiento&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Tech' },
     { url: 'https://news.google.com/rss/search?q=ecommerce+compras+online+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'eCommerce' },
     { url: 'https://news.google.com/rss/search?q=hipoteca+credito+finanzas+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Finance' },
-    { url: 'https://news.google.com/rss/search?q=autos+carros+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Auto' },
+    { url: 'https://news.google.com/rss/search?q=autos+carros+electrico+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Auto' },
     { url: 'https://news.google.com/rss/search?q=ahorro+beneficios+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Savings & Benefits' },
   ],
   Canada: [
-    { url: 'https://news.google.com/rss/search?q=technology+gadgets+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Tech' },
+    { url: 'https://news.google.com/rss/search?q=samsung+galaxy+iphone+smartphone+launch+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Tech' },
     { url: 'https://news.google.com/rss/search?q=ecommerce+shopping+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'eCommerce' },
     { url: 'https://news.google.com/rss/search?q=mortgage+rates+finance+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Finance' },
     { url: 'https://news.google.com/rss/search?q=car+auto+deals+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Auto' },
@@ -41,7 +49,7 @@ const GOOGLE_NEWS_FEEDS = {
   ],
 };
 
-// Reddit subreddits per market/category
+// Reddit subreddits per market
 const REDDIT_SUBREDDITS = {
   USA: ['personalfinance', 'technology', 'deals', 'frugal', 'cars', 'investing', 'gadgets'],
   EU: ['europe', 'unitedkingdom', 'germany', 'financialindependence'],
@@ -49,8 +57,16 @@ const REDDIT_SUBREDDITS = {
   Canada: ['canada', 'PersonalFinanceCanada', 'canadafinance'],
 };
 
+// Google Trends countries mapped to markets
+const GOOGLE_TRENDS_GEOS = [
+  { geo: 'US', market: 'USA' },
+  { geo: 'GB', market: 'EU' },
+  { geo: 'CA', market: 'Canada' },
+  { geo: 'MX', market: 'LATAM' },
+];
+
 const CATEGORY_KEYWORDS = {
-  Tech: ['tech', 'technology', 'gadget', 'phone', 'laptop', 'AI', 'software', 'app', 'device'],
+  Tech: ['tech', 'technology', 'gadget', 'phone', 'laptop', 'ai', 'software', 'app', 'device', 'samsung', 'iphone', 'pixel', 'smartphone'],
   eCommerce: ['ecommerce', 'shopping', 'deal', 'sale', 'product', 'amazon', 'retail', 'discount'],
   Finance: ['finance', 'mortgage', 'loan', 'credit', 'bank', 'invest', 'stock', 'rate', 'money'],
   Auto: ['car', 'auto', 'vehicle', 'ev', 'electric', 'truck', 'suv', 'drive'],
@@ -66,7 +82,7 @@ function detectCategory(text) {
   for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
     if (keywords.some((kw) => lower.includes(kw))) return cat;
   }
-  return 'Tech'; // default
+  return 'Tech';
 }
 
 async function fetchOneFeed(market, feed, now) {
@@ -94,130 +110,84 @@ async function fetchOneFeed(market, feed, now) {
 
 async function fetchGoogleNewsRSS() {
   const now = new Date().toISOString();
-
-  // Flatten all feeds with market info, fetch all 20 in parallel
   const allFeeds = Object.entries(GOOGLE_NEWS_FEEDS).flatMap(([market, feeds]) =>
     feeds.map((feed) => ({ market, feed }))
   );
-
   const results = await Promise.allSettled(
     allFeeds.map(({ market, feed }) => fetchOneFeed(market, feed, now))
+  );
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
+}
+
+// Reddit via public RSS — no OAuth needed, fully parallel
+async function fetchRedditRSS() {
+  const now = new Date().toISOString();
+  const allSubs = Object.entries(REDDIT_SUBREDDITS).flatMap(([market, subs]) =>
+    subs.slice(0, 3).map((sub) => ({ market, sub }))
+  );
+
+  const results = await Promise.allSettled(
+    allSubs.map(async ({ market, sub }) => {
+      try {
+        const feed = await parser.parseURL(`https://www.reddit.com/r/${sub}/hot.rss?limit=5`);
+        return (feed.items || []).slice(0, 5).map((item) => ({
+          id: generateId(`reddit-${sub}-${item.link || ''}`, item.title || ''),
+          headline: item.title || 'No headline',
+          url: item.link || '',
+          source: `Reddit r/${sub}`,
+          source_type: 'reddit',
+          market,
+          category: detectCategory((item.title || '') + ' ' + (item.contentSnippet || '')),
+          summary: null,
+          campaign_angle: null,
+          published_at: item.pubDate ? new Date(item.pubDate).toISOString() : now,
+          fetched_at: now,
+          raw_content: item.contentSnippet ? item.contentSnippet.substring(0, 500) : item.title || '',
+        }));
+      } catch (err) {
+        console.error(`[Reddit RSS] Failed r/${sub}: ${err.message}`);
+        return [];
+      }
+    })
   );
 
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
-async function fetchRedditPosts() {
-  const items = [];
+// Google Trends daily trending searches via public RSS — no API key needed
+async function fetchGoogleTrends() {
   const now = new Date().toISOString();
 
-  const clientId = process.env.REDDIT_CLIENT_ID;
-  const clientSecret = process.env.REDDIT_CLIENT_SECRET;
-
-  // Get Reddit access token
-  let accessToken = null;
-  if (clientId && clientSecret) {
-    try {
-      const tokenRes = await axios.post(
-        'https://www.reddit.com/api/v1/access_token',
-        'grant_type=client_credentials',
-        {
-          auth: { username: clientId, password: clientSecret },
-          headers: { 'User-Agent': 'MediaBuyerBot/1.0' },
-        }
-      );
-      accessToken = tokenRes.data.access_token;
-    } catch (err) {
-      console.error('[Reddit] Token fetch failed:', err.message);
-    }
-  }
-
-  for (const [market, subreddits] of Object.entries(REDDIT_SUBREDDITS)) {
-    for (const sub of subreddits.slice(0, 3)) {
+  const results = await Promise.allSettled(
+    GOOGLE_TRENDS_GEOS.map(async ({ geo, market }) => {
       try {
-        const headers = { 'User-Agent': 'MediaBuyerBot/1.0' };
-        if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
-
-        const baseUrl = accessToken ? 'https://oauth.reddit.com' : 'https://www.reddit.com';
-        const res = await axios.get(`${baseUrl}/r/${sub}/hot.json?limit=5`, { headers });
-        const posts = res.data?.data?.children || [];
-
-        for (const post of posts) {
-          const d = post.data;
-          if (d.stickied || d.over_18) continue;
-
-          items.push({
-            id: generateId(`reddit-${d.id}`, d.title),
-            headline: d.title,
-            url: `https://reddit.com${d.permalink}`,
-            source: `Reddit r/${sub}`,
-            source_type: 'reddit',
-            market,
-            category: detectCategory(d.title + ' ' + (d.selftext || '')),
-            summary: null,
-            campaign_angle: null,
-            published_at: new Date(d.created_utc * 1000).toISOString(),
-            fetched_at: now,
-            raw_content: d.selftext ? d.selftext.substring(0, 500) : d.title,
-          });
-        }
-      } catch (err) {
-        console.error(`[Reddit] Failed to fetch r/${sub}:`, err.message);
-      }
-    }
-  }
-
-  return items;
-}
-
-async function fetchTwitterTrends() {
-  const items = [];
-  const bearerToken = process.env.TWITTER_BEARER_TOKEN;
-
-  if (!bearerToken) {
-    console.log('[Twitter] No bearer token configured, skipping');
-    return items;
-  }
-
-  const now = new Date().toISOString();
-
-  // Woeid codes for trending topics: 1=worldwide, 23424977=US, 23424975=UK, 23424975=Canada
-  const LOCATIONS = [
-    { market: 'USA', woeid: 23424977 },
-    { market: 'Canada', woeid: 23424775 },
-    { market: 'EU', woeid: 23424975 },
-  ];
-
-  for (const loc of LOCATIONS) {
-    try {
-      const res = await axios.get(
-        `https://api.twitter.com/1.1/trends/place.json?id=${loc.woeid}`,
-        { headers: { Authorization: `Bearer ${bearerToken}` } }
-      );
-
-      const trends = res.data?.[0]?.trends?.slice(0, 5) || [];
-      for (const trend of trends) {
-        items.push({
-          id: generateId(`twitter-${loc.market}-${trend.name}`, trend.name),
-          headline: trend.name,
-          url: trend.url || `https://twitter.com/search?q=${encodeURIComponent(trend.name)}`,
-          source: 'Twitter/X Trending',
-          source_type: 'twitter',
-          market: loc.market,
-          category: detectCategory(trend.name),
+        const feed = await trendsParser.parseURL(
+          `https://trends.google.com/trends/trendingsearches/daily/rss?geo=${geo}`
+        );
+        return (feed.items || []).slice(0, 5).map((item) => ({
+          id: generateId(`gtrends-${geo}-${item.title || ''}`, item.title || ''),
+          headline: `🔥 ${item.title || ''}`,
+          url: item.link || `https://trends.google.com/trending?geo=${geo}`,
+          source: `Google Trends (${geo})`,
+          source_type: 'google_trends',
+          market,
+          category: detectCategory(item.title || ''),
           summary: null,
           campaign_angle: null,
-          published_at: now,
+          published_at: item.pubDate ? new Date(item.pubDate).toISOString() : now,
           fetched_at: now,
-          raw_content: trend.tweet_volume ? `~${trend.tweet_volume} tweets` : '',
-        });
+          raw_content: item.approxTraffic
+            ? `Trending in ${geo}: ~${item.approxTraffic} searches`
+            : item.title || '',
+        }));
+      } catch (err) {
+        console.error(`[GoogleTrends] Failed geo=${geo}: ${err.message}`);
+        return [];
       }
-    } catch (err) {
-      console.error(`[Twitter] Failed to fetch trends for ${loc.market}:`, err.message);
-    }
-  }
+    })
+  );
 
-  return items;
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
 function deduplicateItems(items) {
@@ -230,15 +200,17 @@ function deduplicateItems(items) {
 }
 
 async function fetchAllNews() {
-  console.log('[NewsAggregator] Starting news fetch (Google News RSS + Reddit)...');
-  const [rssItems, redditItems] = await Promise.allSettled([
+  console.log('[NewsAggregator] Fetching Google News RSS, Reddit RSS, Google Trends in parallel...');
+  const [rssResult, redditResult, trendsResult] = await Promise.allSettled([
     fetchGoogleNewsRSS(),
-    fetchRedditPosts(),
+    fetchRedditRSS(),
+    fetchGoogleTrends(),
   ]);
 
   const allItems = [
-    ...(rssItems.status === 'fulfilled' ? rssItems.value : []),
-    ...(redditItems.status === 'fulfilled' ? redditItems.value : []),
+    ...(rssResult.status === 'fulfilled' ? rssResult.value : []),
+    ...(redditResult.status === 'fulfilled' ? redditResult.value : []),
+    ...(trendsResult.status === 'fulfilled' ? trendsResult.value : []),
   ];
 
   const deduplicated = deduplicateItems(allItems);

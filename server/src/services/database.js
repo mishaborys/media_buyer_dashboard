@@ -52,8 +52,8 @@ async function saveNewsItems(items) {
          ${item.market}, ${item.category}, ${item.summary}, ${item.campaign_angle},
          ${item.published_at}, ${item.fetched_at}, ${item.raw_content})
       ON CONFLICT (id) DO UPDATE SET
-        summary = EXCLUDED.summary,
-        campaign_angle = EXCLUDED.campaign_angle,
+        summary = COALESCE(news_items.summary, EXCLUDED.summary),
+        campaign_angle = COALESCE(news_items.campaign_angle, EXCLUDED.campaign_angle),
         fetched_at = EXCLUDED.fetched_at
     `;
   }
@@ -189,15 +189,27 @@ async function logRefreshComplete(id, itemsFetched, error = null) {
   `;
 }
 
+async function getUnenrichedItems(limit = 50) {
+  await ensureSchema();
+  const result = await sql`
+    SELECT * FROM news_items
+    WHERE summary IS NULL
+    ORDER BY fetched_at DESC
+    LIMIT ${limit}
+  `;
+  return result.rows;
+}
+
 async function cleanOldNews() {
   await sql`
-    DELETE FROM news_items WHERE fetched_at < NOW() - INTERVAL '48 hours'
+    DELETE FROM news_items WHERE fetched_at < NOW() - INTERVAL '72 hours'
   `;
 }
 
 module.exports = {
   saveNewsItems,
   getNewsItems,
+  getUnenrichedItems,
   getSocialTrends,
   getLastRefresh,
   logRefreshStart,
