@@ -62,7 +62,10 @@ async function saveNewsItems(items) {
 async function getNewsItems({ market, category, source_type, limit = 50, offset = 0 } = {}) {
   await ensureSchema();
 
-  const conditions = [`fetched_at >= NOW() - INTERVAL '72 hours'`];
+  const conditions = [
+    `fetched_at >= NOW() - INTERVAL '72 hours'`,
+    `(published_at IS NULL OR published_at >= NOW() - INTERVAL '72 hours')`,
+  ];
   const values = [];
 
   if (market && market !== 'ALL') {
