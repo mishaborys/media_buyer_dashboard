@@ -59,8 +59,9 @@ router.get('/social', async (req, res) => {
         byMarket[item.market].countries[geo] = [];
       }
 
-      const trafficMatch = item.raw_content?.match(/~([^s]+searches?)/i);
-      const traffic = trafficMatch ? trafficMatch[1].trim() : null;
+      // raw_content format: "~500K searches" or "~1M+ searches"
+      const trafficMatch = item.raw_content?.match(/~([\d.,]+[KMBkmb]*\+?)/i);
+      const traffic = trafficMatch ? trafficMatch[1] : null;
 
       byMarket[item.market].countries[geo].push({
         topic: item.headline.replace(/^🔥\s*/, ''),

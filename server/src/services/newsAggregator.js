@@ -175,7 +175,16 @@ async function fetchRedditRSS() {
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
-// Google Trends daily trending searches via public RSS — no API key needed
+// Parse "10K+", "500K+", "1M+" → number for sorting by absolute volume
+function parseApproxTraffic(str) {
+  if (!str) return 0;
+  const s = str.replace(/[+\s,]/g, '');
+  if (s.toUpperCase().endsWith('M')) return parseFloat(s) * 1_000_000;
+  if (s.toUpperCase().endsWith('K')) return parseFloat(s) * 1_000;
+  return parseFloat(s) || 0;
+}
+
+// Google Trends — top searches by absolute volume in each country
 async function fetchGoogleTrends() {
   const now = new Date().toISOString();
 
@@ -185,10 +194,17 @@ async function fetchGoogleTrends() {
         const feed = await trendsParser.parseURL(
           `https://trends.google.com/trending/rss?geo=${geo}`
         );
-        return (feed.items || []).slice(0, 5).map((item) => ({
+        // Fetch up to 20, sort by search volume descending, keep top 5
+        const sorted = (feed.items || [])
+          .slice(0, 20)
+          .sort((a, b) => parseApproxTraffic(b.approxTraffic) - parseApproxTraffic(a.approxTraffic))
+          .slice(0, 5);
+
+        return sorted.map((item) => ({
           id: generateId(`gtrends-${geo}-${item.title || ''}`, item.title || ''),
           headline: `🔥 ${item.title || ''}`,
-          url: item.link || `https://trends.google.com/trending?geo=${geo}`,
+          // Link to Google Search for the query — more actionable than Trends chart
+          url: `https://www.google.com/search?q=${encodeURIComponent(item.title || '')}`,
           source: `Google Trends (${geo})`,
           source_type: 'google_trends',
           market,
@@ -198,7 +214,7 @@ async function fetchGoogleTrends() {
           published_at: item.pubDate ? new Date(item.pubDate).toISOString() : now,
           fetched_at: now,
           raw_content: item.approxTraffic
-            ? `Trending in ${geo}: ~${item.approxTraffic} searches`
+            ? `~${item.approxTraffic} searches`
             : item.title || '',
         }));
       } catch (err) {

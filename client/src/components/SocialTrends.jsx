@@ -63,7 +63,7 @@ export default function SocialTrends({ trends, loading, market }) {
             <FireOutlined style={{ color: '#f5222d' }} />
             <Text strong>{MARKET_LABELS[mkt] || mkt}</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Top Google searches today
+              Top searches by volume
             </Text>
           </Space>
         ),

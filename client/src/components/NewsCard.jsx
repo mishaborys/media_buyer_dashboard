@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Card, Tag, Typography, Button, Alert, Space } from 'antd'
 import {
   LikeOutlined,
   LikeFilled,
   DislikeOutlined,
+  DislikeFilled,
   RobotOutlined,
   MobileOutlined,
   ShoppingOutlined,
@@ -49,8 +51,13 @@ function formatRelativeTime(dateStr) {
 }
 
 export default function NewsCard({ item, isLiked, onLike, onDislike, onEnrich, enriching }) {
+  const [likeHovered, setLikeHovered] = useState(false)
+  const [skipHovered, setSkipHovered] = useState(false)
+
   const market = MARKET_CONFIG[item.market] || { color: 'default', flag: '' }
   const category = CATEGORY_CONFIG[item.category] || { color: 'default', icon: null }
+
+  const likeActive = isLiked || likeHovered
 
   return (
     <Card
@@ -152,25 +159,34 @@ export default function NewsCard({ item, isLiked, onLike, onDislike, onEnrich, e
         <Space size={8}>
           <Button
             size="middle"
-            icon={isLiked ? <LikeFilled /> : <LikeOutlined />}
+            icon={likeActive ? <LikeFilled /> : <LikeOutlined />}
             onClick={() => onLike?.(item)}
+            onMouseEnter={() => setLikeHovered(true)}
+            onMouseLeave={() => setLikeHovered(false)}
             style={{
-              background: isLiked ? '#52c41a' : 'transparent',
+              background: likeActive ? '#52c41a' : 'transparent',
               borderColor: '#52c41a',
-              color: isLiked ? '#fff' : '#52c41a',
+              color: likeActive ? '#fff' : '#52c41a',
               fontWeight: 600,
+              transform: likeHovered && !isLiked ? 'scale(1.08)' : 'scale(1)',
+              transition: 'all 0.18s ease',
             }}
           >
             {isLiked ? 'Liked' : 'Like'}
           </Button>
           <Button
             size="middle"
-            icon={<DislikeOutlined />}
+            icon={skipHovered ? <DislikeFilled /> : <DislikeOutlined />}
             onClick={() => onDislike?.(item.id)}
+            onMouseEnter={() => setSkipHovered(true)}
+            onMouseLeave={() => setSkipHovered(false)}
             style={{
+              background: skipHovered ? '#ff4d4f' : 'transparent',
               borderColor: '#ff4d4f',
-              color: '#ff4d4f',
+              color: skipHovered ? '#fff' : '#ff4d4f',
               fontWeight: 600,
+              transform: skipHovered ? 'scale(1.08)' : 'scale(1)',
+              transition: 'all 0.18s ease',
             }}
           >
             Skip
