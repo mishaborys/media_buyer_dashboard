@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
-export function useNews(market, category) {
+export function useNews(market, category, sourceType) {
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -15,6 +15,7 @@ export function useNews(market, category) {
       const params = new URLSearchParams()
       if (market && market !== 'ALL') params.set('market', market)
       if (category && category !== 'ALL') params.set('category', category)
+      if (sourceType && sourceType !== 'ALL') params.set('source_type', sourceType)
       params.set('limit', '100')
 
       const res = await fetch(`${API_BASE}/news?${params}`)
@@ -28,7 +29,7 @@ export function useNews(market, category) {
     } finally {
       setLoading(false)
     }
-  }, [market, category])
+  }, [market, category, sourceType])
 
   useEffect(() => {
     fetchNews()

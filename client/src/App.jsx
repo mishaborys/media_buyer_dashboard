@@ -14,10 +14,11 @@ const { Text } = Typography
 export default function App() {
   const [market, setMarket] = useState('ALL')
   const [category, setCategory] = useState('ALL')
+  const [source, setSource] = useState('ALL')
   const [savedDrawerOpen, setSavedDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('news')
 
-  const { news, loading: newsLoading, error: newsError, lastRefresh, refetch } = useNews(market, category)
+  const { news, loading: newsLoading, error: newsError, lastRefresh, refetch } = useNews(market, category, source)
   const { trends, loading: trendsLoading } = useSocialTrends(market)
   const { bookmarks, isBookmarked, toggleBookmark, removeBookmark } = useBookmarks()
 
@@ -76,8 +77,10 @@ export default function App() {
       <FilterBar
         market={market}
         category={category}
+        source={source}
         onMarketChange={setMarket}
         onCategoryChange={setCategory}
+        onSourceChange={setSource}
       />
 
       <Content>

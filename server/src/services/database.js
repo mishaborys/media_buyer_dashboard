@@ -1,4 +1,4 @@
-const { sql } = require('@vercel/postgres');
+const { sql, db: pgDb } = require('@vercel/postgres');
 
 async function initSchema() {
   await sql`
@@ -59,38 +59,34 @@ async function saveNewsItems(items) {
   }
 }
 
-async function getNewsItems({ market, category, limit = 50, offset = 0 } = {}) {
+async function getNewsItems({ market, category, source_type, limit = 50, offset = 0 } = {}) {
   await ensureSchema();
 
-  let result;
-  if (market && market !== 'ALL' && category && category !== 'ALL') {
-    result = await sql`
-      SELECT * FROM news_items
-      WHERE market = ${market} AND category = ${category}
-      ORDER BY fetched_at DESC, published_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `;
-  } else if (market && market !== 'ALL') {
-    result = await sql`
-      SELECT * FROM news_items
-      WHERE market = ${market}
-      ORDER BY fetched_at DESC, published_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `;
-  } else if (category && category !== 'ALL') {
-    result = await sql`
-      SELECT * FROM news_items
-      WHERE category = ${category}
-      ORDER BY fetched_at DESC, published_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `;
-  } else {
-    result = await sql`
-      SELECT * FROM news_items
-      ORDER BY fetched_at DESC, published_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `;
+  const conditions = [];
+  const values = [];
+
+  if (market && market !== 'ALL') {
+    values.push(market);
+    conditions.push(`market = $${values.length}`);
   }
+  if (category && category !== 'ALL') {
+    values.push(category);
+    conditions.push(`category = $${values.length}`);
+  }
+  if (source_type && source_type !== 'ALL') {
+    values.push(source_type);
+    conditions.push(`source_type = $${values.length}`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  values.push(parseInt(limit), parseInt(offset));
+  const limitIdx = values.length - 1;
+  const offsetIdx = values.length;
+
+  const result = await pgDb.query(
+    `SELECT * FROM news_items ${where} ORDER BY fetched_at DESC, published_at DESC LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+    values
+  );
 
   return result.rows;
 }

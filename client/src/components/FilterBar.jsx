@@ -27,7 +27,14 @@ const CATEGORIES = [
   { label: 'Savings & Benefits', value: 'Savings & Benefits', icon: <DollarOutlined /> },
 ]
 
-export default function FilterBar({ market, category, onMarketChange, onCategoryChange }) {
+const SOURCES = [
+  { label: '🗂 All Sources', value: 'ALL' },
+  { label: '📰 Google News', value: 'google_news' },
+  { label: '🔗 Reddit', value: 'reddit' },
+  { label: '🔥 Google Trends', value: 'google_trends' },
+]
+
+export default function FilterBar({ market, category, source, onMarketChange, onCategoryChange, onSourceChange }) {
   return (
     <div className="filter-bar">
       <Space size={16} wrap>
@@ -60,6 +67,18 @@ export default function FilterBar({ market, category, onMarketChange, onCategory
               ),
               value: c.value,
             }))}
+          />
+        </div>
+
+        <div>
+          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+            Source
+          </Text>
+          <Select
+            value={source}
+            onChange={onSourceChange}
+            style={{ width: 170 }}
+            options={SOURCES.map((s) => ({ label: s.label, value: s.value }))}
           />
         </div>
       </Space>
