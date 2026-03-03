@@ -23,8 +23,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Only apply Clerk middleware when the secret key is configured
-if (process.env.CLERK_SECRET_KEY) {
+// Apply Clerk middleware only when both keys are configured
+if (process.env.CLERK_SECRET_KEY && process.env.CLERK_PUBLISHABLE_KEY) {
   app.use(clerkMiddleware());
 }
 
