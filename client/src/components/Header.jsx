@@ -86,6 +86,7 @@ export default function Header({ likedCount, onLikedClick, lastRefresh, onRefres
           </Tooltip>
           <Badge count={likedCount} overflowCount={99}>
             <Button
+              data-liked-btn
               icon={<HeartOutlined />}
               onClick={onLikedClick}
               style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}
