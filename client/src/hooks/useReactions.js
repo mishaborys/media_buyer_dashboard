@@ -63,8 +63,12 @@ export function useReactions() {
     authFetch(`${API_BASE}/reactions/${id}`, { method: 'DELETE' }).catch(() => {})
   }, [authFetch])
 
+  const updateLikedItem = useCallback((updatedItem) => {
+    setLikedItems((prev) => prev.map((l) => l.id === updatedItem.id ? { ...l, ...updatedItem } : l))
+  }, [])
+
   const isLiked = useCallback((id) => likedItems.some((l) => l.id === id), [likedItems])
   const isDisliked = useCallback((id) => dislikedIds.has(id), [dislikedIds])
 
-  return { likedItems, like, dislike, removeLike, isLiked, isDisliked }
+  return { likedItems, like, dislike, removeLike, isLiked, isDisliked, updateLikedItem }
 }

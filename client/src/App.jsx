@@ -24,7 +24,7 @@ export default function App() {
 
   const { news, loading: newsLoading, error: newsError, lastRefresh, refetch, updateItem } = useNews(market, category, source)
   const { trends, loading: trendsLoading } = useSocialTrends(market)
-  const { likedItems, like, dislike, removeLike, isLiked, isDisliked } = useReactions()
+  const { likedItems, like, dislike, removeLike, isLiked, isDisliked, updateLikedItem } = useReactions()
 
   const handleRefreshComplete = useCallback(() => {
     refetch()
@@ -38,6 +38,7 @@ export default function App() {
       const data = await res.json()
       if (data.success && data.data) {
         updateItem(data.data)
+        updateLikedItem(data.data)
       }
     } catch (err) {
       message.error('Failed to get Claude summary: ' + err.message)
@@ -139,6 +140,8 @@ export default function App() {
             onClose={() => setLikedDrawerOpen(false)}
             likedItems={likedItems}
             onRemove={removeLike}
+            onEnrich={handleEnrich}
+            enrichingId={enrichingId}
           />
         </Layout>
       </SignedIn>

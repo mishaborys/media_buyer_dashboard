@@ -5,6 +5,7 @@ import {
   LinkOutlined,
   BulbOutlined,
   RobotOutlined,
+  LoadingOutlined,
 } from '@ant-design/icons'
 
 const { Text, Link, Paragraph } = Typography
@@ -26,7 +27,7 @@ const CATEGORY_COLORS = {
   Entertainment: 'magenta',
 }
 
-export default function LikedDrawer({ open, onClose, likedItems, onRemove }) {
+export default function LikedDrawer({ open, onClose, likedItems, onRemove, onEnrich, enrichingId }) {
   return (
     <Modal
       title={
@@ -122,9 +123,15 @@ export default function LikedDrawer({ open, onClose, likedItems, onRemove }) {
                   )}
 
                   {!item.summary && !item.campaign_angle && (
-                    <Text type="secondary" style={{ fontSize: 12, fontStyle: 'italic' }}>
-                      No Claude analysis yet — click Enrich on the card to generate it.
-                    </Text>
+                    <Button
+                      size="small"
+                      icon={enrichingId === item.id ? <LoadingOutlined /> : <RobotOutlined />}
+                      loading={enrichingId === item.id}
+                      onClick={() => onEnrich?.(item.id)}
+                      style={{ fontSize: 12 }}
+                    >
+                      Ask Claude
+                    </Button>
                   )}
                 </div>
               </List.Item>
