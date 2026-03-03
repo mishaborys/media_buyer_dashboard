@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { Layout, Tabs, Alert, Typography, message } from 'antd'
+import { SignedIn, SignedOut, SignIn } from '@clerk/clerk-react'
 import Header from './components/Header'
 import FilterBar from './components/FilterBar'
 import NewsGrid from './components/NewsGrid'
@@ -89,48 +90,58 @@ export default function App() {
   ]
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header
-        likedCount={likedItems.length}
-        onLikedClick={() => setLikedDrawerOpen(true)}
-        lastRefresh={lastRefresh}
-        onRefreshComplete={handleRefreshComplete}
-      />
+    <>
+      <SignedOut>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f5f5f5' }}>
+          <SignIn routing="hash" />
+        </div>
+      </SignedOut>
 
-      <FilterBar
-        market={market}
-        category={category}
-        source={source}
-        onMarketChange={setMarket}
-        onCategoryChange={setCategory}
-        onSourceChange={setSource}
-      />
+      <SignedIn>
+        <Layout style={{ minHeight: '100vh' }}>
+          <Header
+            likedCount={likedItems.length}
+            onLikedClick={() => setLikedDrawerOpen(true)}
+            lastRefresh={lastRefresh}
+            onRefreshComplete={handleRefreshComplete}
+          />
 
-      <Content>
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          items={tabItems}
-          tabBarStyle={{
-            background: '#fff',
-            padding: '0 16px',
-            margin: 0,
-            borderBottom: '1px solid #f0f0f0',
-          }}
-          tabBarExtraContent={
-            <Text type="secondary" style={{ fontSize: 12, paddingRight: 8 }}>
-              {news.length} items
-            </Text>
-          }
-        />
-      </Content>
+          <FilterBar
+            market={market}
+            category={category}
+            source={source}
+            onMarketChange={setMarket}
+            onCategoryChange={setCategory}
+            onSourceChange={setSource}
+          />
 
-      <LikedDrawer
-        open={likedDrawerOpen}
-        onClose={() => setLikedDrawerOpen(false)}
-        likedItems={likedItems}
-        onRemove={removeLike}
-      />
-    </Layout>
+          <Content>
+            <Tabs
+              activeKey={activeTab}
+              onChange={setActiveTab}
+              items={tabItems}
+              tabBarStyle={{
+                background: '#fff',
+                padding: '0 16px',
+                margin: 0,
+                borderBottom: '1px solid #f0f0f0',
+              }}
+              tabBarExtraContent={
+                <Text type="secondary" style={{ fontSize: 12, paddingRight: 8 }}>
+                  {news.length} items
+                </Text>
+              }
+            />
+          </Content>
+
+          <LikedDrawer
+            open={likedDrawerOpen}
+            onClose={() => setLikedDrawerOpen(false)}
+            likedItems={likedItems}
+            onRemove={removeLike}
+          />
+        </Layout>
+      </SignedIn>
+    </>
   )
 }

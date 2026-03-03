@@ -4,6 +4,7 @@ import {
   ThunderboltOutlined,
   HeartOutlined,
 } from '@ant-design/icons'
+import { UserButton } from '@clerk/clerk-react'
 import { triggerRefresh } from '../hooks/useNews'
 import { useState } from 'react'
 
@@ -92,6 +93,7 @@ export default function Header({ likedCount, onLikedClick, lastRefresh, onRefres
               Liked
             </Button>
           </Badge>
+          <UserButton />
         </Space>
       </div>
     </AntHeader>

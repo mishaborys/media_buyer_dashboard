@@ -30,6 +30,15 @@ async function initSchema() {
   await sql`CREATE INDEX IF NOT EXISTS idx_news_market ON news_items(market)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_news_category ON news_items(category)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_news_fetched ON news_items(fetched_at)`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_reactions (
+      user_id      TEXT NOT NULL,
+      news_item_id TEXT NOT NULL REFERENCES news_items(id) ON DELETE CASCADE,
+      reaction     TEXT NOT NULL CHECK (reaction IN ('like', 'dislike')),
+      created_at   TIMESTAMPTZ DEFAULT NOW(),
+      PRIMARY KEY (user_id, news_item_id)
+    )
+  `;
 }
 
 // Run schema init once per cold start
@@ -219,6 +228,33 @@ async function updateNewsItemEnrichment(id, summary, campaign_angle) {
   `;
 }
 
+async function getUserReactions(userId, type = 'like') {
+  await ensureSchema();
+  const result = await sql`
+    SELECT n.* FROM news_items n
+    INNER JOIN user_reactions ur ON n.id = ur.news_item_id
+    WHERE ur.user_id = ${userId} AND ur.reaction = ${type}
+    ORDER BY ur.created_at DESC
+  `;
+  return result.rows;
+}
+
+async function setUserReaction(userId, newsItemId, reaction) {
+  await ensureSchema();
+  await sql`
+    INSERT INTO user_reactions (user_id, news_item_id, reaction)
+    VALUES (${userId}, ${newsItemId}, ${reaction})
+    ON CONFLICT (user_id, news_item_id) DO UPDATE SET reaction = ${reaction}
+  `;
+}
+
+async function removeUserReaction(userId, newsItemId) {
+  await ensureSchema();
+  await sql`
+    DELETE FROM user_reactions WHERE user_id = ${userId} AND news_item_id = ${newsItemId}
+  `;
+}
+
 module.exports = {
   saveNewsItems,
   getNewsItems,
@@ -230,4 +266,7 @@ module.exports = {
   logRefreshStart,
   logRefreshComplete,
   cleanOldNews,
+  getUserReactions,
+  setUserReaction,
+  removeUserReaction,
 };
