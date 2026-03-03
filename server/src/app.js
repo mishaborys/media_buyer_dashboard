@@ -19,10 +19,14 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     cb(null, true); // дозволяємо всі (same-domain на Vercel)
   },
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'DELETE'],
 }));
 app.use(express.json());
-app.use(clerkMiddleware());
+
+// Only apply Clerk middleware when the secret key is configured
+if (process.env.CLERK_SECRET_KEY) {
+  app.use(clerkMiddleware());
+}
 
 app.use('/api/news', newsRouter);
 app.use('/api/refresh', refreshRouter);
