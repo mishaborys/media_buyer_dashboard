@@ -39,7 +39,7 @@ export default function LikedDrawer({ open, onClose, likedItems, onRemove }) {
       onCancel={onClose}
       footer={null}
       width="min(900px, 95vw)"
-      styles={{ body: { padding: '16px 24px', maxHeight: '75vh', overflowY: 'auto' } }}
+      styles={{ body: { padding: '12px 24px 20px', maxHeight: '75vh', overflowY: 'auto', background: '#f5f5f5' } }}
     >
       {likedItems.length === 0 ? (
         <Empty
@@ -50,11 +50,19 @@ export default function LikedDrawer({ open, onClose, likedItems, onRemove }) {
       ) : (
         <List
           dataSource={likedItems}
+          split={false}
           renderItem={(item) => {
             const market = MARKET_CONFIG[item.market] || { color: 'default', flag: '' }
             return (
-              <List.Item style={{ padding: '14px 0', alignItems: 'flex-start' }}>
-                <div style={{ width: '100%' }}>
+              <List.Item style={{ padding: '6px 0', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: '100%',
+                  background: '#fff',
+                  border: '1px solid #e8e8e8',
+                  borderRadius: 10,
+                  padding: '14px 16px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                }}>
                   {/* Header row: tags + remove button */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                     <Space size={4} wrap>
