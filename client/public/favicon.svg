@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="#1677FF"/>
+  <!-- Megaphone body -->
+  <path d="M7 13h4v6H7z" fill="white"/>
+  <path d="M11 12L22 7v18L11 20z" fill="white"/>
+  <!-- Bell/sound circle -->
+  <circle cx="23.5" cy="16" r="2.5" fill="white" opacity="0.6"/>
+  <!-- Signal waves -->
+  <path d="M25.5 12.5 Q28 14.5 28 16 Q28 17.5 25.5 19.5" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <!-- Handle -->
+  <path d="M9 19l2 5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+</svg>
