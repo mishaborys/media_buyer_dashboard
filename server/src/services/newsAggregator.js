@@ -237,6 +237,48 @@ async function fetchGoogleTrends() {
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
+// Deal aggregator RSS feeds — verified working (no API key required)
+const DEALS_RSS_FEEDS = [
+  // USA
+  { url: 'https://www.dealnews.com/?rss=1', market: 'USA', label: 'DealNews' },
+  // EU
+  { url: 'https://www.mydealz.de/rss/hot', market: 'EU', label: 'Mydealz (DE)' },
+  { url: 'https://www.dealabs.com/rss/hot', market: 'EU', label: 'Dealabs (FR)' },
+  { url: 'https://www.hotukdeals.com/deals.rss', market: 'EU', label: 'HotUKDeals (UK)' },
+  // LATAM
+  { url: 'https://www.promodescuentos.com/rss/hot', market: 'LATAM', label: 'Promodescuentos (MX)' },
+  { url: 'https://www.chollometro.com/rss/hot', market: 'LATAM', label: 'Chollometro (ES/LATAM)' },
+];
+
+async function fetchDealsRSS() {
+  const now = new Date().toISOString();
+  const results = await Promise.allSettled(
+    DEALS_RSS_FEEDS.map(async ({ url, market, label }) => {
+      try {
+        const feed = await parser.parseURL(url);
+        return (feed.items || []).slice(0, 5).map((item) => ({
+          id: generateId(`deals-${label}-${item.link || ''}`, item.title || ''),
+          headline: item.title || 'No headline',
+          url: item.link || '',
+          source: label,
+          source_type: 'deals_rss',
+          market,
+          category: 'Clearance Sales',
+          summary: null,
+          campaign_angle: null,
+          published_at: item.pubDate ? new Date(item.pubDate).toISOString() : now,
+          fetched_at: now,
+          raw_content: item.contentSnippet ? item.contentSnippet.substring(0, 500) : item.title || '',
+        }));
+      } catch (err) {
+        console.error(`[DealsRSS] Failed ${label}: ${err.message}`);
+        return [];
+      }
+    })
+  );
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
+}
+
 function deduplicateItems(items) {
   const seen = new Set();
   return items.filter((item) => {
@@ -247,17 +289,19 @@ function deduplicateItems(items) {
 }
 
 async function fetchAllNews() {
-  console.log('[NewsAggregator] Fetching Google News RSS, Reddit RSS, Google Trends in parallel...');
-  const [rssResult, redditResult, trendsResult] = await Promise.allSettled([
+  console.log('[NewsAggregator] Fetching Google News RSS, Reddit RSS, Google Trends, Deals RSS in parallel...');
+  const [rssResult, redditResult, trendsResult, dealsResult] = await Promise.allSettled([
     fetchGoogleNewsRSS(),
     fetchRedditRSS(),
     fetchGoogleTrends(),
+    fetchDealsRSS(),
   ]);
 
   const allItems = [
     ...(rssResult.status === 'fulfilled' ? rssResult.value : []),
     ...(redditResult.status === 'fulfilled' ? redditResult.value : []),
     ...(trendsResult.status === 'fulfilled' ? trendsResult.value : []),
+    ...(dealsResult.status === 'fulfilled' ? dealsResult.value : []),
   ];
 
   const deduplicated = deduplicateItems(allItems);

@@ -38,6 +38,7 @@ const SOURCES = [
   { label: '📰 Google News', value: 'google_news' },
   { label: '🔗 Reddit', value: 'reddit' },
   { label: '🔥 Google Trends', value: 'google_trends' },
+  { label: '🏷️ Deals RSS', value: 'deals_rss' },
 ]
 
 export default function FilterBar({ market, category, source, onMarketChange, onCategoryChange, onSourceChange }) {

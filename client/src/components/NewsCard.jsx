@@ -41,6 +41,7 @@ const SOURCE_TYPE_LABELS = {
   google_news: 'Google News',
   reddit: 'Reddit',
   google_trends: 'Google Trends',
+  deals_rss: 'Deals',
 }
 
 function formatRelativeTime(dateStr) {
