@@ -1,5 +1,6 @@
 const RSSParser = require('rss-parser');
 const crypto = require('crypto');
+const axios = require('axios');
 
 const parser = new RSSParser({
   timeout: 10000,
@@ -237,6 +238,20 @@ async function fetchGoogleTrends() {
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
+// Fetch raw XML, fix bare & not part of valid entities, then parse
+async function fetchSanitizedRSS(url) {
+  const response = await axios.get(url, {
+    timeout: 10000,
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MediaBuyerBot/1.0)' },
+    responseType: 'text',
+  });
+  const sanitized = response.data.replace(
+    /&(?!(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/g,
+    '&amp;'
+  );
+  return parser.parseString(sanitized);
+}
+
 // Deal aggregator RSS feeds — verified working (no API key required)
 const DEALS_RSS_FEEDS = [
   // USA
@@ -244,7 +259,7 @@ const DEALS_RSS_FEEDS = [
   // EU
   { url: 'https://www.mydealz.de/rss/hot', market: 'EU', label: 'Mydealz (DE)' },
   { url: 'https://www.dealabs.com/rss/hot', market: 'EU', label: 'Dealabs (FR)' },
-  { url: 'https://www.hotukdeals.com/deals.rss', market: 'EU', label: 'HotUKDeals (UK)' },
+  { url: 'https://www.hotukdeals.com/deals.rss', market: 'EU', label: 'HotUKDeals (UK)', sanitize: true },
   // LATAM
   { url: 'https://www.promodescuentos.com/rss/hot', market: 'LATAM', label: 'Promodescuentos (MX)' },
   { url: 'https://www.chollometro.com/rss/hot', market: 'LATAM', label: 'Chollometro (ES/LATAM)' },
@@ -253,9 +268,9 @@ const DEALS_RSS_FEEDS = [
 async function fetchDealsRSS() {
   const now = new Date().toISOString();
   const results = await Promise.allSettled(
-    DEALS_RSS_FEEDS.map(async ({ url, market, label }) => {
+    DEALS_RSS_FEEDS.map(async ({ url, market, label, sanitize }) => {
       try {
-        const feed = await parser.parseURL(url);
+        const feed = sanitize ? await fetchSanitizedRSS(url) : await parser.parseURL(url);
         return (feed.items || []).slice(0, 5).map((item) => ({
           id: generateId(`deals-${label}-${item.link || ''}`, item.title || ''),
           headline: item.title || 'No headline',
