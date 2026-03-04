@@ -24,6 +24,9 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=savings+benefits+retirement+deals&hl=en-US&gl=US&ceid=US:en', category: 'Savings & Benefits' },
     { url: 'https://news.google.com/rss/search?q=video+game+release+2025+xbox+playstation+nintendo+pc&hl=en-US&gl=US&ceid=US:en', category: 'Gaming' },
     { url: 'https://news.google.com/rss/search?q=new+tv+series+streaming+netflix+hbo+disney+premiere+2025&hl=en-US&gl=US&ceid=US:en', category: 'Entertainment' },
+    { url: 'https://news.google.com/rss/search?q=walmart+clearance+sale+deals&hl=en-US&gl=US&ceid=US:en', category: 'Clearance Sales' },
+    { url: 'https://news.google.com/rss/search?q=target+best+buy+costco+clearance+sale&hl=en-US&gl=US&ceid=US:en', category: 'Clearance Sales' },
+    { url: 'https://news.google.com/rss/search?q=macys+kohls+nordstrom+sale+discount+markdown&hl=en-US&gl=US&ceid=US:en', category: 'Clearance Sales' },
   ],
   EU: [
     { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Tech' },
@@ -34,6 +37,9 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=savings+benefits+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Savings & Benefits' },
     { url: 'https://news.google.com/rss/search?q=video+game+release+xbox+playstation+nintendo+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Gaming' },
     { url: 'https://news.google.com/rss/search?q=new+tv+series+streaming+netflix+hbo+premiere+uk+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Entertainment' },
+    { url: 'https://news.google.com/rss/search?q=zalando+asos+sale+clearance+discount+uk&hl=en-GB&gl=GB&ceid=GB:en', category: 'Clearance Sales' },
+    { url: 'https://news.google.com/rss/search?q=mediamarkt+saturn+carrefour+sale+deals+europe&hl=en-GB&gl=GB&ceid=GB:en', category: 'Clearance Sales' },
+    { url: 'https://news.google.com/rss/search?q=primark+zara+hm+marks+spencer+sale+clearance&hl=en-GB&gl=GB&ceid=GB:en', category: 'Clearance Sales' },
   ],
   LATAM: [
     { url: 'https://news.google.com/rss/search?q=tecnologia+gadgets+IA+latinoamerica&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Tech' },
@@ -44,6 +50,9 @@ const GOOGLE_NEWS_FEEDS = {
     { url: 'https://news.google.com/rss/search?q=ahorro+beneficios+latam&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Savings & Benefits' },
     { url: 'https://news.google.com/rss/search?q=videojuegos+lanzamiento+xbox+playstation+nintendo&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Gaming' },
     { url: 'https://news.google.com/rss/search?q=nueva+serie+streaming+netflix+estreno+temporada&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Entertainment' },
+    { url: 'https://news.google.com/rss/search?q=mercado+libre+oferta+liquidacion+descuento&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Clearance Sales' },
+    { url: 'https://news.google.com/rss/search?q=falabella+liverpool+coppel+oferta+temporada&hl=es-419&gl=MX&ceid=MX:es-419', category: 'Clearance Sales' },
+    { url: 'https://news.google.com/rss/search?q=americanas+extra+casas+bahia+liquidacao+promocao&hl=pt-BR&gl=BR&ceid=BR:pt-419', category: 'Clearance Sales' },
   ],
   Canada: [
     { url: 'https://news.google.com/rss/search?q=technology+gadgets+AI+canada&hl=en-CA&gl=CA&ceid=CA:en', category: 'Tech' },
@@ -85,6 +94,7 @@ const GOOGLE_TRENDS_GEOS = [
 ];
 
 const CATEGORY_KEYWORDS = {
+  'Clearance Sales': ['clearance', 'liquidation', 'markdown', 'liquidacion', 'liquidacao', 'promocao', 'walmart', 'target', 'bestbuy', 'best buy', 'costco', 'macy', 'kohls', 'nordstrom', 'zalando', 'asos', 'mediamarkt', 'carrefour', 'primark', 'mercado libre', 'falabella', 'liverpool', 'coppel', 'americanas', 'casas bahia'],
   Tech: ['tech', 'technology', 'gadget', 'phone', 'laptop', 'ai', 'software', 'app', 'device', 'samsung', 'iphone', 'pixel', 'smartphone'],
   eCommerce: ['ecommerce', 'shopping', 'deal', 'sale', 'product', 'amazon', 'retail', 'discount'],
   Finance: ['finance', 'mortgage', 'loan', 'credit', 'bank', 'invest', 'stock', 'rate', 'money'],

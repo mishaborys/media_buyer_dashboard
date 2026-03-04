@@ -13,6 +13,7 @@ import {
   DollarOutlined,
   TrophyOutlined,
   PlayCircleOutlined,
+  PercentageOutlined,
 } from '@ant-design/icons'
 import { flyToLiked, thanosSnap } from '../utils/animations'
 
@@ -33,6 +34,7 @@ const CATEGORY_CONFIG = {
   'Savings & Benefits': { color: 'lime', icon: <DollarOutlined /> },
   Gaming: { color: 'purple', icon: <TrophyOutlined /> },
   Entertainment: { color: 'magenta', icon: <PlayCircleOutlined /> },
+  'Clearance Sales': { color: 'red', icon: <PercentageOutlined /> },
 }
 
 const SOURCE_TYPE_LABELS = {

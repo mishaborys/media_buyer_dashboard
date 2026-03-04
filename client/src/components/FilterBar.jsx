@@ -8,6 +8,7 @@ import {
   AppstoreOutlined,
   TrophyOutlined,
   PlayCircleOutlined,
+  PercentageOutlined,
 } from '@ant-design/icons'
 
 const { Text } = Typography
@@ -29,6 +30,7 @@ const CATEGORIES = [
   { label: 'Savings & Benefits', value: 'Savings & Benefits', icon: <DollarOutlined /> },
   { label: 'Gaming', value: 'Gaming', icon: <TrophyOutlined /> },
   { label: 'Entertainment', value: 'Entertainment', icon: <PlayCircleOutlined /> },
+  { label: 'Clearance Sales', value: 'Clearance Sales', icon: <PercentageOutlined /> },
 ]
 
 const SOURCES = [

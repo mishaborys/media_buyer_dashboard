@@ -25,6 +25,7 @@ const CATEGORY_COLORS = {
   'Savings & Benefits': 'lime',
   Gaming: 'purple',
   Entertainment: 'magenta',
+  'Clearance Sales': 'red',
 }
 
 export default function LikedDrawer({ open, onClose, likedItems, onRemove, onEnrich, enrichingId }) {
