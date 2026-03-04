@@ -238,18 +238,42 @@ async function fetchGoogleTrends() {
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
 }
 
-// Fetch raw XML, fix bare & not part of valid entities, then parse
+// Regex fallback for heavily malformed RSS feeds
+function parseRSSWithRegex(xml) {
+  const items = [];
+  const itemRegex = /<item[\s>][\s\S]*?<\/item>/g;
+  let match;
+  while ((match = itemRegex.exec(xml)) !== null) {
+    const block = match[0];
+    const getField = (tag) => {
+      const m = block.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/${tag}>`, 'i'));
+      return m ? m[1].replace(/<[^>]+>/g, '').trim() : '';
+    };
+    const link =
+      (block.match(/<link>([^<]+)<\/link>/i) || block.match(/<link[^>]+href="([^"]+)"/i) || [])[1]?.trim() ||
+      getField('guid');
+    const title = getField('title');
+    const pubDate = getField('pubDate');
+    const description = getField('description');
+    if (title) items.push({ title, link: link || '', pubDate, contentSnippet: description.substring(0, 500) });
+  }
+  return { items };
+}
+
+// Fetch raw XML, sanitize & chars, try XML parse then fallback to regex
 async function fetchSanitizedRSS(url) {
   const response = await axios.get(url, {
     timeout: 10000,
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MediaBuyerBot/1.0)' },
     responseType: 'text',
   });
-  const sanitized = response.data.replace(
-    /&(?!(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/g,
-    '&amp;'
-  );
-  return parser.parseString(sanitized);
+  const raw = response.data;
+  const sanitized = raw.replace(/&(?!(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;');
+  try {
+    return await parser.parseString(sanitized);
+  } catch {
+    return parseRSSWithRegex(raw);
+  }
 }
 
 // Deal aggregator RSS feeds — verified working (no API key required)
