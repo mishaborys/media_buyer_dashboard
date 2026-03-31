@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { runFetch, runEnrich, runRefresh, isRefreshing, isEnriching } = require('../services/refreshService');
+const { runFetch, isRefreshing } = require('../services/refreshService');
 
-// GET /api/refresh - Vercel Cron 6:00 UTC: fetch only
+// GET /api/refresh - Vercel Cron 8:00 UTC: fetch only
 router.get('/', async (req, res) => {
   if (isRefreshing()) {
     return res.status(409).json({ success: false, message: 'Fetch already in progress' });
@@ -16,27 +16,13 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/refresh/enrich - Vercel Cron 6:30 UTC: Claude enrichment only
-router.get('/enrich', async (req, res) => {
-  if (isEnriching()) {
-    return res.status(409).json({ success: false, message: 'Enrich already in progress' });
-  }
-  try {
-    const result = await runEnrich();
-    res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('[GET /api/refresh/enrich] Failed:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// POST /api/refresh - manual trigger: fetch + enrich in sequence
+// POST /api/refresh - manual trigger (Refresh button): fetch only, no Claude enrichment
 router.post('/', async (req, res) => {
   if (isRefreshing()) {
     return res.status(409).json({ success: false, message: 'Refresh already in progress' });
   }
   try {
-    const result = await runRefresh();
+    const result = await runFetch();
     res.json({ success: true, ...result });
   } catch (err) {
     console.error('[POST /api/refresh] Failed:', err);
@@ -49,7 +35,6 @@ router.get('/status', (req, res) => {
   res.json({
     success: true,
     isRefreshing: isRefreshing(),
-    isEnriching: isEnriching(),
   });
 });
 
